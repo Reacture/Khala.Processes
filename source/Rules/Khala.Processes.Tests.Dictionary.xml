@@ -1,0 +1,18 @@
+<Dictionary>
+  <Words>
+    <Unrecognized>
+    </Unrecognized>
+    <Recognized>
+      <Word>sut</Word>
+    </Recognized>
+    <Deprecated>
+    </Deprecated>
+    <Compound>
+      <Term CompoundAlternate="HasId">hasid</Term>
+    </Compound>
+  </Words>
+  <Acronyms>
+    <CasingExceptions>
+    </CasingExceptions>
+  </Acronyms>
+</Dictionary>

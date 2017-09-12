@@ -5,7 +5,10 @@ VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{DD9CC521-D32B-43C3-9E31-1D434A61D612}"
 	ProjectSection(SolutionItems) = preProject
+		Rules\Khala.Processes.Dictionary.xml = Rules\Khala.Processes.Dictionary.xml
 		Rules\Khala.Processes.ruleset = Rules\Khala.Processes.ruleset
+		Rules\Khala.Processes.Tests.Dictionary.xml = Rules\Khala.Processes.Tests.Dictionary.xml
+		Rules\Khala.Processes.Tests.ruleset = Rules\Khala.Processes.Tests.ruleset
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Tests", "Khala.Processes.Tests\Khala.Processes.Tests.csproj", "{64E14508-24D4-4C95-AE02-E7CBE49B24DD}"
