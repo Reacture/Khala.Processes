@@ -1,6 +1,7 @@
 ﻿namespace Khala.Processes.Sql
 {
     using System;
+    using System.Data.Entity;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -37,6 +38,13 @@
         {
             typeof(IProcessManagerDbContext<>)
                 .GetMethod("SaveChangesAsync").ReturnType.Should().Be(typeof(Task<int>));
+        }
+
+        [TestMethod]
+        public void sut_has_PendingCommands_property()
+        {
+            typeof(IProcessManagerDbContext<>).Should()
+                .HaveProperty<DbSet<PendingCommand>>("PendingCommands");
         }
     }
 }

@@ -168,6 +168,8 @@
         public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext<FooProcessManager>
         {
             public DbSet<FooProcessManager> ProcessManagers { get; set; }
+
+            public DbSet<PendingCommand> PendingCommands { get; set; }
         }
     }
 }

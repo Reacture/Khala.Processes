@@ -11,6 +11,8 @@
     {
         DbSet<T> ProcessManagers { get; }
 
+        DbSet<PendingCommand> PendingCommands { get; }
+
         DbEntityEntry Entry(object entity);
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
