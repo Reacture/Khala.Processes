@@ -30,7 +30,8 @@
             var context = Mock.Of<IProcessManagerDbContext<FooProcessManager>>();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 context,
-                new JsonMessageSerializer());
+                new JsonMessageSerializer(),
+                Mock.Of<ISqlProcessManagerCommandPublisher>());
 
             sut.Dispose();
 
@@ -59,7 +60,8 @@
             // Arrange
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new ProcessManagerDbContext(),
-                new JsonMessageSerializer());
+                new JsonMessageSerializer(),
+                Mock.Of<ISqlProcessManagerCommandPublisher>());
             using (sut)
             {
                 Expression<Func<FooProcessManager, bool>> predicate = x => x.Id == Guid.NewGuid();
@@ -98,7 +100,8 @@
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new ProcessManagerDbContext(),
-                new JsonMessageSerializer());
+                new JsonMessageSerializer(),
+                Mock.Of<ISqlProcessManagerCommandPublisher>());
             using (sut)
             {
                 Expression<Func<FooProcessManager, bool>> predicate = x => x.AggregateId == expected.AggregateId;
@@ -119,7 +122,8 @@
             var processManager = new FooProcessManager { AggregateId = Guid.NewGuid() };
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new ProcessManagerDbContext(),
-                new JsonMessageSerializer());
+                new JsonMessageSerializer(),
+                Mock.Of<ISqlProcessManagerCommandPublisher>());
             using (sut)
             {
                 // Act
@@ -154,7 +158,8 @@
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new ProcessManagerDbContext(),
-                new JsonMessageSerializer());
+                new JsonMessageSerializer(),
+                Mock.Of<ISqlProcessManagerCommandPublisher>());
             using (sut)
             {
                 var cancellationToken = CancellationToken.None;
@@ -179,9 +184,12 @@
         public async Task Save_commits_once()
         {
             // Arrange
-            var context = Mock.Of<ProcessManagerDbContext>();
             var cancellationToken = CancellationToken.None;
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(context, new JsonMessageSerializer());
+            var context = Mock.Of<ProcessManagerDbContext>();
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                context,
+                new JsonMessageSerializer(),
+                Mock.Of<ISqlProcessManagerCommandPublisher>());
             var processManager = new FooProcessManager();
             var correlationId = default(Guid?);
 
@@ -205,7 +213,8 @@
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new ProcessManagerDbContext(),
-                serializer);
+                serializer,
+                Mock.Of<ISqlProcessManagerCommandPublisher>());
             using (sut)
             {
                 // Act
@@ -232,6 +241,50 @@
                     serializer.Deserialize(t.actual.CommandJson).ShouldBeEquivalentTo(t.expected, opts => opts.RespectingRuntimeTypes());
                 }
             }
+        }
+
+        [TestMethod]
+        public async Task Save_publishes_commands()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var processManager = fixture.Create<FooProcessManager>();
+            var publisher = Mock.Of<ISqlProcessManagerCommandPublisher>();
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                new ProcessManagerDbContext(),
+                new JsonMessageSerializer(),
+                publisher);
+
+            // Act
+            await sut.Save(processManager, null, CancellationToken.None);
+
+            // Assert
+            Mock.Get(publisher).Verify(x => x.PublishCommands(processManager.Id, CancellationToken.None), Times.Once());
+        }
+
+        [TestMethod]
+        public void given_fails_to_commit_Save_does_not_publish_commands()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            var exception = new InvalidOperationException();
+            var publisher = Mock.Of<ISqlProcessManagerCommandPublisher>();
+            var context = Mock.Of<ProcessManagerDbContext>();
+            Mock.Get(context)
+                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ThrowsAsync(exception);
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                context,
+                new JsonMessageSerializer(),
+                publisher);
+            var processManager = fixture.Create<FooProcessManager>();
+
+            // Act
+            Func<Task> action = () => sut.Save(processManager, null, CancellationToken.None);
+
+            // Assert
+            action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
+            Mock.Get(publisher).Verify(x => x.PublishCommands(processManager.Id, CancellationToken.None), Times.Never());
         }
 
         public class FooProcessManager : ProcessManager

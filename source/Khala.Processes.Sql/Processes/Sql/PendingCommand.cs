@@ -53,5 +53,15 @@
                 CommandJson = serializer.Serialize(envelope.Message)
             };
         }
+
+        internal static Envelope ToEnvelope(
+            PendingCommand command,
+            IMessageSerializer serializer)
+        {
+            return new Envelope(
+                command.MessageId,
+                command.CorrelationId,
+                serializer.Deserialize(command.CommandJson));
+        }
     }
 }

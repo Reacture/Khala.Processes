@@ -104,6 +104,7 @@
     <Compile Include="Processes\Sql\IProcessManagerDbContext_specs.cs" />
     <Compile Include="Processes\Sql\PendingCommand_specs.cs" />
     <Compile Include="Processes\Sql\ProcessManager_specs.cs" />
+    <Compile Include="Processes\Sql\SqlProcessManagerCommandPublisher_specs.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContextT_specs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
