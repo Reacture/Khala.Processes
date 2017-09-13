@@ -35,7 +35,7 @@
             {
                 using (IProcessManagerDbContext context = _dbContextFactory.Invoke())
                 {
-                    List<PendingCommand> commands = await LoadPendingCommands(processManagerId, context, cancellationToken).ConfigureAwait(false);
+                    List<PendingCommand> commands = await LoadCommands(processManagerId, context, cancellationToken).ConfigureAwait(false);
                     await SendCommands(commands, cancellationToken).ConfigureAwait(false);
                     await RemoveCommands(context, commands, cancellationToken).ConfigureAwait(false);
                 }
@@ -44,7 +44,7 @@
             return Run();
         }
 
-        private static Task<List<PendingCommand>> LoadPendingCommands(
+        private static Task<List<PendingCommand>> LoadCommands(
             Guid processManagerId,
             IProcessManagerDbContext dbContext,
             CancellationToken cancellationToken)
