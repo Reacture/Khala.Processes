@@ -2,6 +2,8 @@
 {
     using System;
     using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,6 +23,20 @@
                 .GetGenericArguments().Single()
                 .GetGenericParameterConstraints()
                 .Should().Contain(typeof(ProcessManager));
+        }
+
+        [TestMethod]
+        public void sut_has_SaveChangesAsync_method()
+        {
+            typeof(IProcessManagerDbContext<>).Should()
+                .HaveMethod("SaveChangesAsync", new[] { typeof(CancellationToken) });
+        }
+
+        [TestMethod]
+        public void SaveChangeAsync_returns_the_number_of_objects_written_asynchronously()
+        {
+            typeof(IProcessManagerDbContext<>)
+                .GetMethod("SaveChangesAsync").ReturnType.Should().Be(typeof(Task<int>));
         }
     }
 }
