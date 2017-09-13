@@ -4,7 +4,7 @@
     using System.Data.Entity;
 
     public interface IProcessManagerDbContext<T> : IDisposable
-        where T : class
+        where T : ProcessManager
     {
         DbSet<T> ProcessManagers { get; }
     }

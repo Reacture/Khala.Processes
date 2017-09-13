@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Processes\Sql\IProcessManagerDbContext{T}.cs" />
+    <Compile Include="Processes\Sql\ProcessManager.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContext{T}.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,6 +1,7 @@
 ﻿namespace Khala.Processes.Sql
 {
     using System;
+    using System.Linq;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
@@ -20,8 +21,8 @@
         [TestMethod]
         public void Dispose_disposes_db_context()
         {
-            var context = Mock.Of<IProcessManagerDbContext<ProcessManager>>();
-            var sut = new SqlProcessManagerDataContext<ProcessManager>(context);
+            var context = Mock.Of<IProcessManagerDbContext<FooProcessManager>>();
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(context);
 
             sut.Dispose();
 
@@ -35,7 +36,16 @@
             new GuardClauseAssertion(builder).Verify(typeof(SqlProcessManagerDataContext<>));
         }
 
-        public class ProcessManager
+        [TestMethod]
+        public void T_has_ProcessManager_constraint()
+        {
+            typeof(SqlProcessManagerDataContext<>)
+                .GetGenericArguments().Single()
+                .GetGenericParameterConstraints()
+                .Should().Contain(typeof(ProcessManager));
+        }
+
+        public class FooProcessManager : ProcessManager
         {
         }
     }

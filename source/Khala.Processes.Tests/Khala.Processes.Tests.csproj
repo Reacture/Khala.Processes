@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Processes\Sql\IProcessManagerDbContext_specs.cs" />
+    <Compile Include="Processes\Sql\ProcessManager_specs.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContextT_specs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

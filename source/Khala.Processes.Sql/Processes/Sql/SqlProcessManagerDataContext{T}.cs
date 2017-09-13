@@ -3,7 +3,7 @@
     using System;
 
     public sealed class SqlProcessManagerDataContext<T> : IDisposable
-        where T : class
+        where T : ProcessManager
     {
         private IProcessManagerDbContext<T> _dbContext;
 
