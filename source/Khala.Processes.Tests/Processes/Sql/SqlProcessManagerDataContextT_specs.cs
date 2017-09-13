@@ -8,6 +8,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
+    using Khala.Messaging;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Ploeh.AutoFixture;
@@ -27,7 +28,9 @@
         public void Dispose_disposes_db_context()
         {
             var context = Mock.Of<IProcessManagerDbContext<FooProcessManager>>();
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(context);
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                context,
+                new JsonMessageSerializer());
 
             sut.Dispose();
 
@@ -54,7 +57,10 @@
         public async Task Find_returns_null_if_process_manager_that_satisfies_predicate_not_found()
         {
             // Arrange
-            using (var sut = new SqlProcessManagerDataContext<FooProcessManager>(new ProcessManagerDbContext()))
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                new ProcessManagerDbContext(),
+                new JsonMessageSerializer());
+            using (sut)
             {
                 Expression<Func<FooProcessManager, bool>> predicate = x => x.Id == Guid.NewGuid();
 
@@ -90,7 +96,10 @@
                 await db.SaveChangesAsync();
             }
 
-            using (var sut = new SqlProcessManagerDataContext<FooProcessManager>(new ProcessManagerDbContext()))
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                new ProcessManagerDbContext(),
+                new JsonMessageSerializer());
+            using (sut)
             {
                 Expression<Func<FooProcessManager, bool>> predicate = x => x.AggregateId == expected.AggregateId;
 
@@ -108,11 +117,15 @@
         {
             // Arrange
             var processManager = new FooProcessManager { AggregateId = Guid.NewGuid() };
-            using (var sut = new SqlProcessManagerDataContext<FooProcessManager>(new ProcessManagerDbContext()))
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                new ProcessManagerDbContext(),
+                new JsonMessageSerializer());
+            using (sut)
             {
                 // Act
                 var cancellationToken = CancellationToken.None;
-                await sut.Save(processManager, cancellationToken);
+                var correlationId = default(Guid?);
+                await sut.Save(processManager, correlationId, cancellationToken);
             }
 
             // Assert
@@ -139,14 +152,18 @@
 
             string statusValue = fixture.Create(nameof(FooProcessManager.StatusValue));
 
-            using (var sut = new SqlProcessManagerDataContext<FooProcessManager>(new ProcessManagerDbContext()))
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                new ProcessManagerDbContext(),
+                new JsonMessageSerializer());
+            using (sut)
             {
                 var cancellationToken = CancellationToken.None;
                 processManager = await sut.Find(x => x.Id == processManager.Id, cancellationToken);
                 processManager.StatusValue = statusValue;
+                var correlationId = default(Guid?);
 
                 // Act
-                await sut.Save(processManager, cancellationToken);
+                await sut.Save(processManager, correlationId, cancellationToken);
             }
 
             // Assert
@@ -158,11 +175,89 @@
             }
         }
 
+        [TestMethod]
+        public async Task Save_commits_once()
+        {
+            // Arrange
+            var context = Mock.Of<ProcessManagerDbContext>();
+            var cancellationToken = CancellationToken.None;
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(context, new JsonMessageSerializer());
+            var processManager = new FooProcessManager();
+            var correlationId = default(Guid?);
+
+            // Act
+            await sut.Save(processManager, correlationId, cancellationToken);
+
+            // Assert
+            Mock.Get(context).Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once());
+        }
+
+        [TestMethod]
+        public async Task Save_inserts_pending_commands_sequentially()
+        {
+            // Arrange
+            var fixture = new Fixture();
+            IEnumerable<FooCommand> commands = fixture.CreateMany<FooCommand>();
+            var processManager = new FooProcessManager(commands);
+            var correlationId = Guid.NewGuid();
+
+            var serializer = new JsonMessageSerializer();
+
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                new ProcessManagerDbContext(),
+                serializer);
+            using (sut)
+            {
+                // Act
+                await sut.Save(processManager, correlationId, CancellationToken.None);
+            }
+
+            // Assert
+            using (var db = new ProcessManagerDbContext())
+            {
+                IQueryable<PendingCommand> query =
+                    from c in db.PendingCommands
+                    where c.ProcessManagerId == processManager.Id
+                    orderby c.Id
+                    select c;
+
+                List<PendingCommand> pendingCommands = await query.ToListAsync();
+                pendingCommands.Should().HaveCount(commands.Count());
+                foreach (var t in commands.Zip(pendingCommands, (expected, actual) => new { expected, actual }))
+                {
+                    t.actual.ProcessManagerType.Should().Be(typeof(FooProcessManager).FullName);
+                    t.actual.ProcessManagerId.Should().Be(processManager.Id);
+                    t.actual.MessageId.Should().NotBeEmpty();
+                    t.actual.CorrelationId.Should().Be(correlationId);
+                    serializer.Deserialize(t.actual.CommandJson).ShouldBeEquivalentTo(t.expected, opts => opts.RespectingRuntimeTypes());
+                }
+            }
+        }
+
         public class FooProcessManager : ProcessManager
         {
+            public FooProcessManager()
+            {
+            }
+
+            public FooProcessManager(IEnumerable<object> commands)
+            {
+                foreach (object command in commands)
+                {
+                    AddCommand(command);
+                }
+            }
+
             public Guid AggregateId { get; set; }
 
             public string StatusValue { get; set; }
+        }
+
+        public class FooCommand
+        {
+            public int Int32Value { get; set; }
+
+            public string StringValue { get; set; }
         }
 
         public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext<FooProcessManager>

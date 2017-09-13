@@ -5,9 +5,13 @@
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
+    using System.Reflection;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
+    using Ploeh.AutoFixture;
+    using Ploeh.AutoFixture.AutoMoq;
+    using Ploeh.AutoFixture.Idioms;
 
     [TestClass]
     public class ProcessManager_specs
@@ -76,6 +80,69 @@
 
             ids.Should().NotContain(x => x == Guid.Empty);
             ids.Should().OnlyHaveUniqueItems();
+        }
+
+        [TestMethod]
+        public void sut_has_AddCommand_protected_method()
+        {
+            typeof(ProcessManager)
+                .Should()
+                .HaveMethod("AddCommand", new[] { typeof(object) })
+                .Which.IsFamily.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void AddCommand_has_guard_clause()
+        {
+            var builder = new Fixture().Customize(new AutoMoqCustomization());
+            MethodInfo mut = typeof(ProcessManager).GetMethod(
+                "AddCommand", BindingFlags.NonPublic | BindingFlags.Instance);
+            new GuardClauseAssertion(builder).Verify(mut);
+        }
+
+        [TestMethod]
+        public void AddCommand_adds_envelope()
+        {
+            var sut = Mock.Of<ProcessManager>();
+            MethodInfo mut = typeof(ProcessManager).GetMethod(
+                "AddCommand", BindingFlags.NonPublic | BindingFlags.Instance);
+            var command = new object();
+
+            mut.Invoke(sut, new[] { command });
+
+            IEnumerable<object> actual = sut.FlushPendingCommands();
+            actual.Should().ContainSingle().Which.Should().BeSameAs(command);
+        }
+
+        [TestMethod]
+        public void AddCommand_appends_envelope()
+        {
+            var sut = Mock.Of<ProcessManager>();
+            MethodInfo mut = typeof(ProcessManager).GetMethod(
+                "AddCommand", BindingFlags.NonPublic | BindingFlags.Instance);
+            mut.Invoke(sut, new[] { new object() });
+            var command = new object();
+
+            mut.Invoke(sut, new[] { command });
+
+            IEnumerable<object> actual = sut.FlushPendingCommands();
+            actual.Should().HaveCount(2).And.HaveElementAt(1, command);
+        }
+
+        [TestMethod]
+        public void FlushPendingCommands_clears_pending_commands()
+        {
+            var sut = Mock.Of<ProcessManager>();
+            MethodInfo mut = typeof(ProcessManager).GetMethod(
+                "AddCommand", BindingFlags.NonPublic | BindingFlags.Instance);
+            mut.Invoke(sut, new[] { new object() });
+            mut.Invoke(sut, new[] { new object() });
+            mut.Invoke(sut, new[] { new object() });
+
+            sut.FlushPendingCommands();
+
+            IEnumerable<object> actual = sut.FlushPendingCommands();
+            actual.Should().NotBeNull().And.BeEmpty();
         }
     }
 }
