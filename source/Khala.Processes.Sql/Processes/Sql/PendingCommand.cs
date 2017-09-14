@@ -13,6 +13,7 @@
         [Required]
         public string ProcessManagerType { get; private set; }
 
+        [Index]
         public Guid ProcessManagerId { get; private set; }
 
         [Index(IsUnique = true)]

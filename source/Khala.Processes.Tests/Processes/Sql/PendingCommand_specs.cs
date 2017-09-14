@@ -71,6 +71,15 @@
         }
 
         [TestMethod]
+        public void ProcessManagerId_is_decorated_with_Index()
+        {
+            typeof(PendingCommand)
+                .GetProperty("ProcessManagerId")
+                .Should()
+                .BeDecoratedWith<IndexAttribute>(a => a.IsUnique == false);
+        }
+
+        [TestMethod]
         public void sut_has_MessageId_property()
         {
             typeof(PendingCommand).Should().HaveProperty<Guid>("MessageId");
