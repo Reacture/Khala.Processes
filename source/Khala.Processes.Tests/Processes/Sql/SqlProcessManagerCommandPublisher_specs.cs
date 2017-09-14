@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using FluentAssertions;
     using Khala.Messaging;
+    using Khala.TransientFaultHandling;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using Ploeh.AutoFixture;
@@ -168,6 +169,51 @@
                                                    select c;
                 List<PendingCommand> actual = await query.ToListAsync();
                 actual.ShouldAllBeEquivalentTo(commands, opts => opts.RespectingRuntimeTypes());
+            }
+        }
+
+        [TestMethod]
+        public async Task EnqueueAll_publishes_all_pending_commands_asynchronously()
+        {
+            // Arrange
+            var serializer = new JsonMessageSerializer();
+
+            var fixture = new Fixture();
+
+            using (var db = new ProcessManagerDbContext())
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    var processManager = new FooProcessManager();
+                    db.PendingCommands.AddRange(from command in Enumerable.Repeat(new FooCommand(), 3)
+                                                let envelope = new Envelope(command)
+                                                select PendingCommand.FromEnvelope(processManager, envelope, serializer));
+                }
+
+                await db.SaveChangesAsync();
+            }
+
+            var sut = new SqlProcessManagerCommandPublisher(
+                () => new ProcessManagerDbContext(),
+                serializer,
+                Mock.Of<IMessageBus>());
+
+            // Act
+            sut.EnqueueAll(CancellationToken.None);
+
+            // Assert
+            using (var db = new ProcessManagerDbContext())
+            {
+                int maximumRetryCount = 5;
+                var retryPolicy = new RetryPolicy<bool>(
+                    maximumRetryCount,
+                    new DelegatingTransientFaultDetectionStrategy<bool>(
+                        exception => true,
+                        result => result == true),
+                    new ConstantRetryIntervalStrategy(
+                        interval: TimeSpan.FromSeconds(1.0),
+                        immediateFirstRetry: false));
+                (await retryPolicy.Run(db.PendingCommands.AnyAsync, CancellationToken.None)).Should().BeFalse();
             }
         }
 

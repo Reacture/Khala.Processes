@@ -7,5 +7,7 @@
     public interface ISqlProcessManagerCommandPublisher
     {
         Task PublishCommands(Guid processManagerId, CancellationToken cancellationToken);
+
+        void EnqueueAll(CancellationToken cancellationToken);
     }
 }

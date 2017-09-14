@@ -77,5 +77,30 @@
 
             return _messageBus.SendBatch(envelopes, cancellationToken);
         }
+
+        public async void EnqueueAll(CancellationToken cancellationToken)
+        {
+            using (IProcessManagerDbContext context = _dbContextFactory.Invoke())
+            {
+                Loop:
+
+                IEnumerable<Guid> source = await context
+                    .PendingCommands
+                    .OrderBy(c => c.ProcessManagerId)
+                    .Select(c => c.ProcessManagerId)
+                    .Take(1000)
+                    .Distinct()
+                    .ToListAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                Task[] tasks = source.Select(processManagerId => PublishCommands(processManagerId, cancellationToken)).ToArray();
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                if (source.Any())
+                {
+                    goto Loop;
+                }
+            }
+        }
     }
 }
