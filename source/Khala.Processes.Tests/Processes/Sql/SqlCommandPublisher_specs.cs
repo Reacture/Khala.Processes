@@ -217,6 +217,31 @@
             }
         }
 
+        [TestMethod]
+        public async Task given_no_command_FlushCommands_does_not_try_to_send()
+        {
+            // Arrange
+            var messageBus = Mock.Of<IMessageBus>();
+
+            var sut = new SqlCommandPublisher(
+                () => new ProcessManagerDbContext(),
+                new JsonMessageSerializer(),
+                messageBus);
+
+            var processManagerId = Guid.NewGuid();
+
+            // Act
+            await sut.FlushCommands(processManagerId, CancellationToken.None);
+
+            // Assert
+            Mock.Get(messageBus).Verify(
+                x =>
+                x.SendBatch(
+                    It.IsAny<IEnumerable<Envelope>>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Never());
+        }
+
         public class FooProcessManager : ProcessManager
         {
         }

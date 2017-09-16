@@ -36,6 +36,11 @@
                 using (IProcessManagerDbContext context = _dbContextFactory.Invoke())
                 {
                     List<PendingCommand> commands = await LoadCommands(processManagerId, context, cancellationToken).ConfigureAwait(false);
+                    if (commands.Any() == false)
+                    {
+                        return;
+                    }
+
                     await SendCommands(commands, cancellationToken).ConfigureAwait(false);
                     await RemoveCommands(context, commands, cancellationToken).ConfigureAwait(false);
                 }
