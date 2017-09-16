@@ -122,7 +122,7 @@
                 var context = new CommandPublisherExceptionContext(typeof(T), processManager.Id, exception);
                 try
                 {
-                    await _commandPublisherExceptionHandler.Handle(context);
+                    await _commandPublisherExceptionHandler.Handle(context).ConfigureAwait(false);
                 }
                 catch (Exception unhandleable)
                 {
