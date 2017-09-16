@@ -38,7 +38,7 @@
                 dbContext,
                 serializer,
                 commandPublisher,
-                new DefaultCommandPublisherExceptionHandler())
+                DefaultCommandPublisherExceptionHandler.Instance)
         {
         }
 
@@ -134,11 +134,6 @@
                     throw;
                 }
             }
-        }
-
-        private class DefaultCommandPublisherExceptionHandler : ICommandPublisherExceptionHandler
-        {
-            public Task Handle(CommandPublisherExceptionContext context) => Task.FromResult(true);
         }
     }
 }
