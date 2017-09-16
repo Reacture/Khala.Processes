@@ -5,25 +5,25 @@
 
     public class DelegatingCommandPublisherExceptionHandler : ICommandPublisherExceptionHandler
     {
-        private Func<CommandPublisherExceptionContext, Task> _action;
+        private Func<CommandPublisherExceptionContext, Task> _handler;
 
         public DelegatingCommandPublisherExceptionHandler(
-            Func<CommandPublisherExceptionContext, Task> action)
+            Func<CommandPublisherExceptionContext, Task> handler)
         {
-            _action = action ?? throw new ArgumentNullException(nameof(action));
+            _handler = handler ?? throw new ArgumentNullException(nameof(handler));
         }
 
         public DelegatingCommandPublisherExceptionHandler(
-            Action<CommandPublisherExceptionContext> action)
+            Action<CommandPublisherExceptionContext> handler)
         {
-            if (action == null)
+            if (handler == null)
             {
-                throw new ArgumentNullException(nameof(action));
+                throw new ArgumentNullException(nameof(handler));
             }
 
-            _action = context =>
+            _handler = context =>
             {
-                action.Invoke(context);
+                handler.Invoke(context);
                 return Task.FromResult(true);
             };
         }
@@ -35,7 +35,7 @@
                 throw new ArgumentNullException(nameof(context));
             }
 
-            return _action.Invoke(context);
+            return _handler.Invoke(context);
         }
     }
 }
