@@ -73,10 +73,16 @@
         {
             IEnumerable<Envelope> envelopes =
                 from command in commands
-                select PendingCommand.ToEnvelope(command, _serializer);
+                select RestoreEnvelope(command);
 
             return _messageBus.SendBatch(envelopes, cancellationToken);
         }
+
+        private Envelope RestoreEnvelope(PendingCommand command) =>
+            new Envelope(
+                command.MessageId,
+                command.CorrelationId,
+                _serializer.Deserialize(command.CommandJson));
 
         public async void EnqueueAll(CancellationToken cancellationToken)
         {
