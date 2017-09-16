@@ -69,12 +69,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Processes\CommandPublisherExceptionContext.cs" />
+    <Compile Include="Processes\DelegatingCommandPublisherExceptionHandler.cs" />
+    <Compile Include="Processes\ICommandPublisherExceptionHandler.cs" />
     <Compile Include="Processes\Sql\IProcessManagerDbContext.cs" />
     <Compile Include="Processes\Sql\IProcessManagerDbContext{T}.cs" />
-    <Compile Include="Processes\Sql\ISqlProcessManagerCommandPublisher.cs" />
+    <Compile Include="Processes\ICommandPublisher.cs" />
     <Compile Include="Processes\Sql\PendingCommand.cs" />
     <Compile Include="Processes\Sql\ProcessManager.cs" />
-    <Compile Include="Processes\Sql\SqlProcessManagerCommandPublisher.cs" />
+    <Compile Include="Processes\Sql\SqlCommandPublisher.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContext{T}.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

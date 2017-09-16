@@ -16,23 +16,23 @@
     using Ploeh.AutoFixture.Idioms;
 
     [TestClass]
-    public class SqlProcessManagerCommandPublisher_specs
+    public class SqlCommandPublisher_specs
     {
         [TestMethod]
         public void sut_has_guard_clauses()
         {
             var builder = new Fixture().Customize(new AutoMoqCustomization());
-            new GuardClauseAssertion(builder).Verify(typeof(SqlProcessManagerCommandPublisher));
+            new GuardClauseAssertion(builder).Verify(typeof(SqlCommandPublisher));
         }
 
         [TestMethod]
-        public void sut_implements_ISqlProcessManagerCommandPublisher()
+        public void sut_implements_ICommandPublisher()
         {
-            typeof(SqlProcessManagerCommandPublisher).Should().Implement<ISqlProcessManagerCommandPublisher>();
+            typeof(SqlCommandPublisher).Should().Implement<ICommandPublisher>();
         }
 
         [TestMethod]
-        public async Task PublishCommands_deletes_all_commands_associated_with_specified_process_manager()
+        public async Task FlushCommands_deletes_all_commands_associated_with_specified_process_manager()
         {
             // Arrange
             var serializer = new JsonMessageSerializer();
@@ -63,13 +63,13 @@
                 await db.SaveChangesAsync();
             }
 
-            var sut = new SqlProcessManagerCommandPublisher(
+            var sut = new SqlCommandPublisher(
                 () => new ProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>());
 
             // Act
-            await sut.PublishCommands(processManager.Id, CancellationToken.None);
+            await sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
             using (var db = new ProcessManagerDbContext())
@@ -80,7 +80,7 @@
         }
 
         [TestMethod]
-        public async Task PublishCommands_sends_all_commands_associated_with_specified_process_manager_sequentially()
+        public async Task FlushCommands_sends_all_commands_associated_with_specified_process_manager_sequentially()
         {
             // Arrange
             var serializer = new JsonMessageSerializer();
@@ -112,13 +112,13 @@
                 .Callback<IEnumerable<Envelope>, CancellationToken>((envelopes, cancellationToken) => sent.AddRange(envelopes))
                 .Returns(Task.FromResult(true));
 
-            var sut = new SqlProcessManagerCommandPublisher(
+            var sut = new SqlCommandPublisher(
                 () => new ProcessManagerDbContext(),
                 serializer,
                 messageBus);
 
             // Act
-            await sut.PublishCommands(processManager.Id, CancellationToken.None);
+            await sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
             Mock.Get(messageBus).Verify(x => x.Send(It.IsAny<Envelope>(), It.IsAny<CancellationToken>()), Times.Never());
@@ -129,7 +129,7 @@
         }
 
         [TestMethod]
-        public async Task given_message_bus_fails_PublishCommands_deletes_no_command()
+        public async Task given_message_bus_fails_FlushCommands_deletes_no_command()
         {
             // Arrange
             var serializer = new JsonMessageSerializer();
@@ -152,13 +152,13 @@
                 .Setup(x => x.SendBatch(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(exception);
 
-            var sut = new SqlProcessManagerCommandPublisher(
+            var sut = new SqlCommandPublisher(
                 () => new ProcessManagerDbContext(),
                 serializer,
                 messageBus);
 
             // Act
-            Func<Task> action = () => sut.PublishCommands(processManager.Id, CancellationToken.None);
+            Func<Task> action = () => sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
@@ -193,7 +193,7 @@
                 await db.SaveChangesAsync();
             }
 
-            var sut = new SqlProcessManagerCommandPublisher(
+            var sut = new SqlCommandPublisher(
                 () => new ProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>());

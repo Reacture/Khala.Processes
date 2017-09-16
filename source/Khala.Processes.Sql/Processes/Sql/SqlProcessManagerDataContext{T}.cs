@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
@@ -14,16 +15,31 @@
     {
         private readonly IProcessManagerDbContext<T> _dbContext;
         private readonly IMessageSerializer _serializer;
-        private readonly ISqlProcessManagerCommandPublisher _commandPublisher;
+        private readonly ICommandPublisher _commandPublisher;
+        private readonly ICommandPublisherExceptionHandler _commandPublisherExceptionHandler;
 
         public SqlProcessManagerDataContext(
             IProcessManagerDbContext<T> dbContext,
             IMessageSerializer serializer,
-            ISqlProcessManagerCommandPublisher commandPublisher)
+            ICommandPublisher commandPublisher,
+            ICommandPublisherExceptionHandler commandPublisherExceptionHandler)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _commandPublisher = commandPublisher ?? throw new ArgumentNullException(nameof(commandPublisher));
+            _commandPublisherExceptionHandler = commandPublisherExceptionHandler ?? throw new ArgumentNullException(nameof(commandPublisherExceptionHandler));
+        }
+
+        public SqlProcessManagerDataContext(
+            IProcessManagerDbContext<T> dbContext,
+            IMessageSerializer serializer,
+            ICommandPublisher commandPublisher)
+            : this(
+                dbContext,
+                serializer,
+                commandPublisher,
+                new DefaultCommandPublisherExceptionHandler())
+        {
         }
 
         public void Dispose() => _dbContext.Dispose();
@@ -41,7 +57,7 @@
                 .SingleOrDefaultAsync(cancellationToken);
         }
 
-        public Task Save(
+        public Task SaveAndPublishCommands(
             T processManager,
             Guid? correlationId,
             CancellationToken cancellationToken)
@@ -54,7 +70,7 @@
             async Task Run()
             {
                 await SaveProcessManagerAndCommands(processManager, correlationId, cancellationToken).ConfigureAwait(false);
-                await PublishCommands(processManager, cancellationToken).ConfigureAwait(false);
+                await FlushCommands(processManager, cancellationToken).ConfigureAwait(false);
             }
 
             return Run();
@@ -93,11 +109,36 @@
             return _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        private Task PublishCommands(
+        private async Task FlushCommands(
             T processManager,
             CancellationToken cancellationToken)
         {
-            return _commandPublisher.PublishCommands(processManager.Id, cancellationToken);
+            try
+            {
+                await _commandPublisher.FlushCommands(processManager.Id, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                var context = new CommandPublisherExceptionContext(typeof(T), processManager.Id, exception);
+                try
+                {
+                    await _commandPublisherExceptionHandler.Handle(context);
+                }
+                catch (Exception unhandleable)
+                {
+                    Trace.TraceError(unhandleable.ToString());
+                }
+
+                if (context.Handled == false)
+                {
+                    throw;
+                }
+            }
+        }
+
+        private class DefaultCommandPublisherExceptionHandler : ICommandPublisherExceptionHandler
+        {
+            public Task Handle(CommandPublisherExceptionContext context) => Task.FromResult(true);
         }
     }
 }

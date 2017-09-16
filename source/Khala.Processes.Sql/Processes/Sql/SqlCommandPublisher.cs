@@ -8,13 +8,13 @@
     using System.Threading.Tasks;
     using Khala.Messaging;
 
-    public class SqlProcessManagerCommandPublisher : ISqlProcessManagerCommandPublisher
+    public class SqlCommandPublisher : ICommandPublisher
     {
         private readonly Func<IProcessManagerDbContext> _dbContextFactory;
         private readonly IMessageSerializer _serializer;
         private readonly IMessageBus _messageBus;
 
-        public SqlProcessManagerCommandPublisher(
+        public SqlCommandPublisher(
             Func<IProcessManagerDbContext> dbContextFactory,
             IMessageSerializer serializer,
             IMessageBus messageBus)
@@ -24,7 +24,7 @@
             _messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
         }
 
-        public virtual Task PublishCommands(Guid processManagerId, CancellationToken cancellationToken)
+        public virtual Task FlushCommands(Guid processManagerId, CancellationToken cancellationToken)
         {
             if (processManagerId == Guid.Empty)
             {
@@ -93,7 +93,7 @@
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                Task[] tasks = source.Select(processManagerId => PublishCommands(processManagerId, cancellationToken)).ToArray();
+                Task[] tasks = source.Select(processManagerId => FlushCommands(processManagerId, cancellationToken)).ToArray();
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
                 if (source.Any())
