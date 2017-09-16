@@ -116,7 +116,7 @@
         }
 
         [TestMethod]
-        public async Task SaveAndPublishCommands_inserts_new_process_manager()
+        public async Task SaveProcessManagerAndPublishCommands_inserts_new_process_manager()
         {
             // Arrange
             var processManager = new FooProcessManager { AggregateId = Guid.NewGuid() };
@@ -129,7 +129,7 @@
                 // Act
                 var cancellationToken = CancellationToken.None;
                 var correlationId = default(Guid?);
-                await sut.SaveAndPublishCommands(processManager, correlationId, cancellationToken);
+                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, cancellationToken);
             }
 
             // Assert
@@ -143,7 +143,7 @@
         }
 
         [TestMethod]
-        public async Task SaveAndPublishCommands_updates_existing_process_manager()
+        public async Task SaveProcessManagerAndPublishCommands_updates_existing_process_manager()
         {
             // Arrange
             var fixture = new Fixture();
@@ -168,7 +168,7 @@
                 var correlationId = default(Guid?);
 
                 // Act
-                await sut.SaveAndPublishCommands(processManager, correlationId, cancellationToken);
+                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, cancellationToken);
             }
 
             // Assert
@@ -181,7 +181,7 @@
         }
 
         [TestMethod]
-        public async Task SaveAndPublishCommands_commits_once()
+        public async Task SaveProcessManagerAndPublishCommands_commits_once()
         {
             // Arrange
             var cancellationToken = CancellationToken.None;
@@ -194,14 +194,14 @@
             var correlationId = default(Guid?);
 
             // Act
-            await sut.SaveAndPublishCommands(processManager, correlationId, cancellationToken);
+            await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, cancellationToken);
 
             // Assert
             Mock.Get(context).Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once());
         }
 
         [TestMethod]
-        public async Task SaveAndPublishCommands_inserts_pending_commands_sequentially()
+        public async Task SaveProcessManagerAndPublishCommands_inserts_pending_commands_sequentially()
         {
             // Arrange
             var fixture = new Fixture();
@@ -218,7 +218,7 @@
             using (sut)
             {
                 // Act
-                await sut.SaveAndPublishCommands(processManager, correlationId, CancellationToken.None);
+                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
             }
 
             // Assert
@@ -244,7 +244,7 @@
         }
 
         [TestMethod]
-        public async Task SaveAndPublishCommands_publishes_commands()
+        public async Task SaveProcessManagerAndPublishCommands_publishes_commands()
         {
             // Arrange
             var fixture = new Fixture();
@@ -256,14 +256,14 @@
                 publisher);
 
             // Act
-            await sut.SaveAndPublishCommands(processManager, null, CancellationToken.None);
+            await sut.SaveProcessManagerAndPublishCommands(processManager, null, CancellationToken.None);
 
             // Assert
             Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, CancellationToken.None), Times.Once());
         }
 
         [TestMethod]
-        public void given_fails_to_commit_SaveAndPublishCommands_does_not_publish_commands()
+        public void given_fails_to_commit_SaveProcessManagerAndPublishCommands_does_not_publish_commands()
         {
             // Arrange
             var fixture = new Fixture();
@@ -280,7 +280,7 @@
             var processManager = fixture.Create<FooProcessManager>();
 
             // Act
-            Func<Task> action = () => sut.SaveAndPublishCommands(processManager, null, CancellationToken.None);
+            Func<Task> action = () => sut.SaveProcessManagerAndPublishCommands(processManager, null, CancellationToken.None);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
@@ -288,7 +288,7 @@
         }
 
         [TestMethod]
-        public void given_command_publisher_fails_SaveAndPublishCommands_invokes_exception_handler()
+        public void given_command_publisher_fails_SaveProcessManagerAndPublishCommands_invokes_exception_handler()
         {
             // Arrange
             var processManager = new FooProcessManager();
@@ -309,7 +309,7 @@
 
             // Act
             Func<Task> action = () =>
-            sut.SaveAndPublishCommands(processManager, null, cancellationToken);
+            sut.SaveProcessManagerAndPublishCommands(processManager, null, cancellationToken);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
@@ -324,7 +324,7 @@
         }
 
         [TestMethod]
-        public void given_command_publisher_exception_handled_SaveAndPublishCommands_does_not_throw()
+        public void given_command_publisher_exception_handled_SaveProcessManagerAndPublishCommands_does_not_throw()
         {
             // Arrange
             var processManager = new FooProcessManager();
@@ -348,14 +348,14 @@
 
             // Act
             Func<Task> action = () =>
-            sut.SaveAndPublishCommands(processManager, null, cancellationToken);
+            sut.SaveProcessManagerAndPublishCommands(processManager, null, cancellationToken);
 
             // Assert
             action.ShouldNotThrow();
         }
 
         [TestMethod]
-        public void SaveAndPublishCommands_absorbs_command_publisher_exception_handler_exception()
+        public void SaveProcessManagerAndPublishCommands_absorbs_command_publisher_exception_handler_exception()
         {
             // Arrange
             var processManager = new FooProcessManager();
@@ -378,7 +378,7 @@
 
             // Act
             Func<Task> action = () =>
-            sut.SaveAndPublishCommands(processManager, null, cancellationToken);
+            sut.SaveProcessManagerAndPublishCommands(processManager, null, cancellationToken);
 
             // Assert
             action.ShouldNotThrow();

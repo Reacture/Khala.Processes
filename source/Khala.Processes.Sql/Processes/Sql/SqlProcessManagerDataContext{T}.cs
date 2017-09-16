@@ -57,7 +57,7 @@
                 .SingleOrDefaultAsync(cancellationToken);
         }
 
-        public Task SaveAndPublishCommands(
+        public Task SaveProcessManagerAndPublishCommands(
             T processManager,
             Guid? correlationId,
             CancellationToken cancellationToken)
