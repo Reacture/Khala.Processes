@@ -35,7 +35,7 @@
             {
                 using (IProcessManagerDbContext context = _dbContextFactory.Invoke())
                 {
-                    List<PendingCommand> commands = await LoadCommands(processManagerId, context, cancellationToken).ConfigureAwait(false);
+                    List<PendingCommand> commands = await LoadCommands(context, processManagerId, cancellationToken).ConfigureAwait(false);
                     if (commands.Any() == false)
                     {
                         return;
@@ -50,8 +50,8 @@
         }
 
         private static Task<List<PendingCommand>> LoadCommands(
-            Guid processManagerId,
             IProcessManagerDbContext dbContext,
+            Guid processManagerId,
             CancellationToken cancellationToken)
         {
             IQueryable<PendingCommand> query =
@@ -61,15 +61,6 @@
                 select c;
 
             return query.ToListAsync(cancellationToken);
-        }
-
-        private static Task RemoveCommands(
-            IProcessManagerDbContext dbContext,
-            List<PendingCommand> commands,
-            CancellationToken cancellationToken)
-        {
-            dbContext.PendingCommands.RemoveRange(commands);
-            return dbContext.SaveChangesAsync(cancellationToken);
         }
 
         private Task SendCommands(
@@ -88,6 +79,15 @@
                 command.MessageId,
                 command.CorrelationId,
                 _serializer.Deserialize(command.CommandJson));
+
+        private static Task RemoveCommands(
+            IProcessManagerDbContext dbContext,
+            List<PendingCommand> commands,
+            CancellationToken cancellationToken)
+        {
+            dbContext.PendingCommands.RemoveRange(commands);
+            return dbContext.SaveChangesAsync(cancellationToken);
+        }
 
         public async void EnqueueAll(CancellationToken cancellationToken)
         {
