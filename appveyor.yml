@@ -1,0 +1,14 @@
+version: 0.1.{build}
+image: Visual Studio 2017
+configuration: Release
+before_build:
+- cmd: nuget restore source\Khala.Processes.sln
+build:
+  verbosity: minimal
+after_build:
+- cmd: >-
+    nuget pack nuget\Khala.Processes.Sql.nuspec
+test:
+  assemblies: '**\*.tests.dll'
+artifacts:
+- path: Khala.Processes**.nupkg
