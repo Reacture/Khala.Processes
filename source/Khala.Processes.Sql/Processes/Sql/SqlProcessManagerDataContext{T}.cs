@@ -44,7 +44,11 @@
 
         public void Dispose() => _dbContext.Dispose();
 
+        [Obsolete("Use FindProcessManager() instead. This method will be removed in version 1.0.0.")]
         public Task<T> Find(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+            => FindProcessManager(predicate, cancellationToken);
+
+        public Task<T> FindProcessManager(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
         {
             if (predicate == null)
             {
@@ -53,7 +57,7 @@
 
             async Task<T> Run()
             {
-                T processManager = await FindSingle(predicate, cancellationToken).ConfigureAwait(false);
+                T processManager = await FindSingleProcessManager(predicate, cancellationToken).ConfigureAwait(false);
                 await FlushCommandsIfProcessManagerExists(processManager, cancellationToken).ConfigureAwait(false);
                 return processManager;
             }
@@ -61,7 +65,7 @@
             return Run();
         }
 
-        private Task<T> FindSingle(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        private Task<T> FindSingleProcessManager(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
             => _dbContext
             .ProcessManagers
             .Where(predicate)

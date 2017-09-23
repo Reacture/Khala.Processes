@@ -55,7 +55,7 @@
         }
 
         [TestMethod]
-        public async Task Find_returns_null_if_process_manager_that_satisfies_predicate_not_found()
+        public async Task FindProcessManager_returns_null_if_process_manager_that_satisfies_predicate_not_found()
         {
             // Arrange
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
@@ -67,7 +67,7 @@
                 Expression<Func<FooProcessManager, bool>> predicate = x => x.Id == Guid.NewGuid();
 
                 // Act
-                FooProcessManager actual = await sut.Find(predicate, CancellationToken.None);
+                FooProcessManager actual = await sut.FindProcessManager(predicate, CancellationToken.None);
 
                 // Assert
                 actual.Should().BeNull();
@@ -75,7 +75,7 @@
         }
 
         [TestMethod]
-        public async Task Find_returns_process_manager_that_satisfies_predicate()
+        public async Task FindProcessManager_returns_process_manager_that_satisfies_predicate()
         {
             // Arrange
             List<FooProcessManager> processManagers = Enumerable
@@ -107,7 +107,7 @@
                 Expression<Func<FooProcessManager, bool>> predicate = x => x.AggregateId == expected.AggregateId;
 
                 // Act
-                FooProcessManager actual = await sut.Find(predicate, CancellationToken.None);
+                FooProcessManager actual = await sut.FindProcessManager(predicate, CancellationToken.None);
 
                 // Assert
                 actual.Should().NotBeNull();
@@ -116,7 +116,7 @@
         }
 
         [TestMethod]
-        public async Task Find_flushes_pending_commands()
+        public async Task FindProcessManager_flushes_pending_commands()
         {
             // Arrange
             var publisher = Mock.Of<ICommandPublisher>();
@@ -132,7 +132,7 @@
             }
 
             // Act
-            await sut.Find(p => p.Id == processManager.Id, CancellationToken.None);
+            await sut.FindProcessManager(p => p.Id == processManager.Id, CancellationToken.None);
 
             // Assert
             Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, CancellationToken.None), Times.Once());
@@ -186,7 +186,7 @@
             using (sut)
             {
                 var cancellationToken = CancellationToken.None;
-                processManager = await sut.Find(x => x.Id == processManager.Id, cancellationToken);
+                processManager = await sut.FindProcessManager(x => x.Id == processManager.Id, cancellationToken);
                 processManager.StatusValue = statusValue;
                 var correlationId = default(Guid?);
 
