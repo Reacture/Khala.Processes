@@ -51,11 +51,26 @@
                 throw new ArgumentNullException(nameof(predicate));
             }
 
-            return _dbContext
-                .ProcessManagers
-                .Where(predicate)
-                .SingleOrDefaultAsync(cancellationToken);
+            async Task<T> Run()
+            {
+                T processManager = await FindSingle(predicate, cancellationToken).ConfigureAwait(false);
+                await FlushCommandsIfProcessManagerExists(processManager, cancellationToken).ConfigureAwait(false);
+                return processManager;
+            }
+
+            return Run();
         }
+
+        private Task<T> FindSingle(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+            => _dbContext
+            .ProcessManagers
+            .Where(predicate)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        private Task FlushCommandsIfProcessManagerExists(T processManager, CancellationToken cancellationToken)
+            => processManager == null
+            ? Task.FromResult(true)
+            : _commandPublisher.FlushCommands(processManager.Id, cancellationToken);
 
         public Task SaveProcessManagerAndPublishCommands(
             T processManager,

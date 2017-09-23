@@ -116,6 +116,29 @@
         }
 
         [TestMethod]
+        public async Task Find_flushes_pending_commands()
+        {
+            // Arrange
+            var publisher = Mock.Of<ICommandPublisher>();
+            var processManager = new FooProcessManager();
+            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                new ProcessManagerDbContext(),
+                new JsonMessageSerializer(),
+                publisher);
+            using (var db = new ProcessManagerDbContext())
+            {
+                db.ProcessManagers.Add(processManager);
+                await db.SaveChangesAsync();
+            }
+
+            // Act
+            await sut.Find(p => p.Id == processManager.Id, CancellationToken.None);
+
+            // Assert
+            Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, CancellationToken.None), Times.Once());
+        }
+
+        [TestMethod]
         public async Task SaveProcessManagerAndPublishCommands_inserts_new_process_manager()
         {
             // Arrange
