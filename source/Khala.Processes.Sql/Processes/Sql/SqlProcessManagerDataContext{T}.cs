@@ -89,7 +89,7 @@
             async Task Run()
             {
                 await SaveProcessManagerAndCommands(processManager, correlationId, cancellationToken).ConfigureAwait(false);
-                await FlushCommands(processManager, cancellationToken).ConfigureAwait(false);
+                await TryFlushCommands(processManager, cancellationToken).ConfigureAwait(false);
             }
 
             return Run();
@@ -128,7 +128,7 @@
             return _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        private async Task FlushCommands(
+        private async Task TryFlushCommands(
             T processManager,
             CancellationToken cancellationToken)
         {
@@ -139,19 +139,23 @@
             catch (Exception exception)
             {
                 var context = new CommandPublisherExceptionContext(typeof(T), processManager.Id, exception);
-                try
-                {
-                    await _commandPublisherExceptionHandler.Handle(context).ConfigureAwait(false);
-                }
-                catch (Exception unhandleable)
-                {
-                    Trace.TraceError(unhandleable.ToString());
-                }
-
+                await HandleCommandPublisherException(context).ConfigureAwait(false);
                 if (context.Handled == false)
                 {
                     throw;
                 }
+            }
+        }
+
+        private async Task HandleCommandPublisherException(CommandPublisherExceptionContext context)
+        {
+            try
+            {
+                await _commandPublisherExceptionHandler.Handle(context).ConfigureAwait(false);
+            }
+            catch (Exception unhandleable)
+            {
+                Trace.TraceError(unhandleable.ToString());
             }
         }
     }
