@@ -242,6 +242,53 @@
                 Times.Never());
         }
 
+        [TestMethod]
+        public async Task FlushCommands_absorbs_exception_caused_by_that_some_pending_event_already_deleted_since_loaded()
+        {
+            // Arrange
+            var messageBus = new CompletableMessageBus();
+            var serializer = new JsonMessageSerializer();
+            var sut = new SqlCommandPublisher(
+                () => new ProcessManagerDbContext(),
+                serializer,
+                messageBus);
+
+            var processManager = new FooProcessManager();
+
+            using (var db = new ProcessManagerDbContext())
+            {
+                db.PendingCommands.AddRange(
+                    new Fixture()
+                    .CreateMany<FooCommand>()
+                    .Select(c => new Envelope(c))
+                    .Select(e => PendingCommand.FromEnvelope(processManager, e, serializer)));
+                await db.SaveChangesAsync();
+            }
+
+            // Act
+            Func<Task> action = async () =>
+            {
+                Task flushTask = sut.FlushCommands(processManager.Id, CancellationToken.None);
+                using (var db = new ProcessManagerDbContext())
+                {
+                    List<PendingCommand> pendingCommands = await db
+                        .PendingCommands
+                        .Where(c => c.ProcessManagerId == processManager.Id)
+                        .OrderByDescending(c => c.Id)
+                        .Take(1)
+                        .ToListAsync();
+                    db.PendingCommands.RemoveRange(pendingCommands);
+                    await db.SaveChangesAsync();
+                }
+
+                messageBus.Complete();
+                await flushTask;
+            };
+
+            // Assert
+            action.ShouldNotThrow();
+        }
+
         public class FooProcessManager : ProcessManager
         {
         }
@@ -258,6 +305,19 @@
             public DbSet<FooProcessManager> ProcessManagers { get; set; }
 
             public DbSet<PendingCommand> PendingCommands { get; set; }
+        }
+
+        private class CompletableMessageBus : IMessageBus
+        {
+            private readonly TaskCompletionSource<bool> _completionSource = new TaskCompletionSource<bool>();
+
+            public void Complete() => _completionSource.SetResult(true);
+
+            public Task Send(Envelope envelope, CancellationToken cancellationToken)
+                => _completionSource.Task;
+
+            public Task SendBatch(IEnumerable<Envelope> envelopes, CancellationToken cancellationToken)
+                => _completionSource.Task;
         }
     }
 }

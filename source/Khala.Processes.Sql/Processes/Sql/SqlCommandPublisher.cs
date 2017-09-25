@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Data.Entity.Core;
+    using System.Data.Entity.Infrastructure;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -31,22 +33,20 @@
                 throw new ArgumentException("Value cannot be empty.", nameof(processManagerId));
             }
 
-            async Task Run()
-            {
-                using (IProcessManagerDbContext context = _dbContextFactory.Invoke())
-                {
-                    List<PendingCommand> commands = await LoadCommands(context, processManagerId, cancellationToken).ConfigureAwait(false);
-                    if (commands.Any() == false)
-                    {
-                        return;
-                    }
+            return RunFlushCommands(processManagerId, cancellationToken);
+        }
 
+        private async Task RunFlushCommands(Guid processManagerId, CancellationToken cancellationToken)
+        {
+            using (IProcessManagerDbContext context = _dbContextFactory.Invoke())
+            {
+                List<PendingCommand> commands = await LoadCommands(context, processManagerId, cancellationToken).ConfigureAwait(false);
+                if (commands.Any())
+                {
                     await SendCommands(commands, cancellationToken).ConfigureAwait(false);
                     await RemoveCommands(context, commands, cancellationToken).ConfigureAwait(false);
                 }
             }
-
-            return Run();
         }
 
         private static Task<List<PendingCommand>> LoadCommands(
@@ -80,13 +80,32 @@
                 command.CorrelationId,
                 _serializer.Deserialize(command.CommandJson));
 
-        private static Task RemoveCommands(
+        private static async Task RemoveCommands(
             IProcessManagerDbContext dbContext,
             List<PendingCommand> commands,
             CancellationToken cancellationToken)
         {
-            dbContext.PendingCommands.RemoveRange(commands);
-            return dbContext.SaveChangesAsync(cancellationToken);
+            foreach (PendingCommand command in commands)
+            {
+                await RemoveCommand(dbContext, command, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        private static async Task RemoveCommand(
+            IProcessManagerDbContext dbContext,
+            PendingCommand command,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                dbContext.PendingCommands.Remove(command);
+                await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (DbUpdateConcurrencyException exception)
+            when (exception.InnerException is OptimisticConcurrencyException)
+            {
+                dbContext.Entry(command).State = EntityState.Detached;
+            }
         }
 
         public async void EnqueueAll(CancellationToken cancellationToken)
