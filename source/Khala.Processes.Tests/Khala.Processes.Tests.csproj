@@ -105,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Processes\CommandPublisherExceptionContext_specs.cs" />
+    <Compile Include="Processes\CompositeCommandPublisherExceptionHandler_specs.cs" />
     <Compile Include="Processes\DelegatingCommandPublisherExceptionHandler_specs.cs" />
     <Compile Include="Processes\ICommandPublisherExceptionHandler_specs.cs" />
     <Compile Include="Processes\Sql\IProcessManagerDbContext_specs.cs" />
