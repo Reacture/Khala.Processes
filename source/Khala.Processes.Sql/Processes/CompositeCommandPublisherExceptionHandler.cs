@@ -5,7 +5,7 @@
     using System.Diagnostics;
     using System.Threading.Tasks;
 
-    public class CompositeCommandPublisherExceptionHandler
+    public class CompositeCommandPublisherExceptionHandler : ICommandPublisherExceptionHandler
     {
         private readonly IEnumerable<ICommandPublisherExceptionHandler> _handlers;
 

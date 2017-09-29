@@ -14,6 +14,12 @@
     public class CompositeCommandPublisherExceptionHandler_specs
     {
         [TestMethod]
+        public void sut_implements_ICommandPublisherExceptionHandler()
+        {
+            typeof(CompositeCommandPublisherExceptionHandler).Should().Implement<ICommandPublisherExceptionHandler>();
+        }
+
+        [TestMethod]
         public async Task Handle_invokes_all_inner_handler_functions()
         {
             // Arrange
