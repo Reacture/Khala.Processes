@@ -48,33 +48,41 @@
         public Task<T> Find(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
             => FindProcessManager(predicate, cancellationToken);
 
-        public Task<T> FindProcessManager(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        public Task<T> FindProcessManager(
+            Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
         {
             if (predicate == null)
             {
                 throw new ArgumentNullException(nameof(predicate));
             }
 
-            async Task<T> Run()
-            {
-                T processManager = await FindSingleProcessManager(predicate, cancellationToken).ConfigureAwait(false);
-                await FlushCommandsIfProcessManagerExists(processManager, cancellationToken).ConfigureAwait(false);
-                return processManager;
-            }
-
-            return Run();
+            return RunFindProcessManager(predicate, cancellationToken);
         }
 
-        private Task<T> FindSingleProcessManager(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
-            => _dbContext
-            .ProcessManagers
-            .Where(predicate)
-            .SingleOrDefaultAsync(cancellationToken);
+        private async Task<T> RunFindProcessManager(
+            Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        {
+            T processManager = await FindSingleProcessManager(predicate, cancellationToken).ConfigureAwait(false);
+            await FlushCommandsIfProcessManagerExists(processManager, cancellationToken).ConfigureAwait(false);
+            return processManager;
+        }
 
-        private Task FlushCommandsIfProcessManagerExists(T processManager, CancellationToken cancellationToken)
-            => processManager == null
-            ? Task.FromResult(true)
-            : _commandPublisher.FlushCommands(processManager.Id, cancellationToken);
+        private Task<T> FindSingleProcessManager(
+            Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        {
+            return _dbContext
+                .ProcessManagers
+                .Where(predicate)
+                .SingleOrDefaultAsync(cancellationToken);
+        }
+
+        private Task FlushCommandsIfProcessManagerExists(
+            T processManager, CancellationToken cancellationToken)
+        {
+            return processManager == null
+                ? Task.FromResult(true)
+                : _commandPublisher.FlushCommands(processManager.Id, cancellationToken);
+        }
 
         public Task SaveProcessManagerAndPublishCommands(
             T processManager,
