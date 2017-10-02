@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{DD9CC521-D32B-43C3-9E31-1D434A61D612}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Tests", "Khala.Processes.Tests\Khala.Processes.Tests.csproj", "{64E14508-24D4-4C95-AE02-E7CBE49B24DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Sql", "Khala.Processes.Sql\Khala.Processes.Sql.csproj", "{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Abstraction", "Khala.Processes.Abstraction\Khala.Processes.Abstraction.csproj", "{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
