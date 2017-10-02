@@ -41,13 +41,13 @@
       <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="Khala.Messaging.Abstraction, Version=0.13.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Khala.Messaging.Abstraction.0.13.1\lib\netstandard1.1\Khala.Messaging.Abstraction.dll</HintPath>
+      <HintPath>..\packages\Khala.Messaging.Abstraction.0.13.4\lib\netstandard1.1\Khala.Messaging.Abstraction.dll</HintPath>
     </Reference>
     <Reference Include="Khala.Messaging.Contracts, Version=0.13.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Khala.Messaging.Contracts.0.13.0\lib\netstandard1.1\Khala.Messaging.Contracts.dll</HintPath>
+      <HintPath>..\packages\Khala.Messaging.Contracts.0.13.1\lib\netstandard1.1\Khala.Messaging.Contracts.dll</HintPath>
     </Reference>
-    <Reference Include="Khala.TransientFaultHandling, Version=0.7.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Khala.TransientFaultHandling.0.7.0\lib\netstandard1.1\Khala.TransientFaultHandling.dll</HintPath>
+    <Reference Include="Khala.TransientFaultHandling, Version=0.7.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Khala.TransientFaultHandling.0.7.4\lib\netstandard1.1\Khala.TransientFaultHandling.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -58,9 +58,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
