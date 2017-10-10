@@ -71,7 +71,7 @@
                 from command in commands
                 select RestoreEnvelope(command);
 
-            return _messageBus.SendBatch(envelopes, cancellationToken);
+            return _messageBus.Send(envelopes, cancellationToken);
         }
 
         private Envelope RestoreEnvelope(PendingCommand command) =>

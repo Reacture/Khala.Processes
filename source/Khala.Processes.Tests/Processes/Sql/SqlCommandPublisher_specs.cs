@@ -108,7 +108,7 @@
             var messageBus = Mock.Of<IMessageBus>();
             var sent = new List<Envelope>();
             Mock.Get(messageBus)
-                .Setup(x => x.SendBatch(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.Send(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()))
                 .Callback<IEnumerable<Envelope>, CancellationToken>((envelopes, cancellationToken) => sent.AddRange(envelopes))
                 .Returns(Task.FromResult(true));
 
@@ -122,7 +122,7 @@
 
             // Assert
             Mock.Get(messageBus).Verify(x => x.Send(It.IsAny<Envelope>(), It.IsAny<CancellationToken>()), Times.Never());
-            Mock.Get(messageBus).Verify(x => x.SendBatch(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()), Times.Once());
+            Mock.Get(messageBus).Verify(x => x.Send(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()), Times.Once());
             sent.ShouldAllBeEquivalentTo(
                 commands.Select(c => new Envelope(c.MessageId, c.CorrelationId, serializer.Deserialize(c.CommandJson))),
                 opts => opts.WithStrictOrdering().RespectingRuntimeTypes());
@@ -149,7 +149,7 @@
             var messageBus = Mock.Of<IMessageBus>();
             var exception = new InvalidOperationException();
             Mock.Get(messageBus)
-                .Setup(x => x.SendBatch(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()))
+                .Setup(x => x.Send(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(exception);
 
             var sut = new SqlCommandPublisher(
@@ -236,7 +236,7 @@
             // Assert
             Mock.Get(messageBus).Verify(
                 x =>
-                x.SendBatch(
+                x.Send(
                     It.IsAny<IEnumerable<Envelope>>(),
                     It.IsAny<CancellationToken>()),
                 Times.Never());
@@ -316,7 +316,7 @@
             public Task Send(Envelope envelope, CancellationToken cancellationToken)
                 => _completionSource.Task;
 
-            public Task SendBatch(IEnumerable<Envelope> envelopes, CancellationToken cancellationToken)
+            public Task Send(IEnumerable<Envelope> envelopes, CancellationToken cancellationToken)
                 => _completionSource.Task;
         }
     }
