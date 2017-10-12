@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.Data.Entity;
+    using System.Data.Entity.Validation;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
@@ -208,7 +210,7 @@
         {
             // Arrange
             var cancellationToken = CancellationToken.None;
-            var context = Mock.Of<ProcessManagerDbContext>();
+            var context = new ProcessManagerDbContext();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 context,
                 new JsonMessageSerializer(),
@@ -220,7 +222,7 @@
             await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, cancellationToken);
 
             // Assert
-            Mock.Get(context).Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once());
+            context.CommitCount.Should().Be(1);
         }
 
         [TestMethod]
@@ -290,23 +292,19 @@
         {
             // Arrange
             var fixture = new Fixture();
-            var exception = new InvalidOperationException();
             var publisher = Mock.Of<ICommandPublisher>();
-            var context = Mock.Of<ProcessManagerDbContext>();
-            Mock.Get(context)
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(exception);
+            var processManager = fixture.Create<FooProcessManager>();
+            processManager.SetValidationError("invalid process manager state");
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                context,
+                new ProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 publisher);
-            var processManager = fixture.Create<FooProcessManager>();
 
             // Act
             Func<Task> action = () => sut.SaveProcessManagerAndPublishCommands(processManager, null, CancellationToken.None);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
+            action.ShouldThrow<DbEntityValidationException>();
             Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, CancellationToken.None), Times.Never());
         }
 
@@ -407,8 +405,10 @@
             action.ShouldNotThrow();
         }
 
-        public class FooProcessManager : ProcessManager
+        public class FooProcessManager : ProcessManager, IValidatableObject
         {
+            private string _validationError = null;
+
             public FooProcessManager()
             {
             }
@@ -424,6 +424,16 @@
             public Guid AggregateId { get; set; }
 
             public string StatusValue { get; set; }
+
+            public void SetValidationError(string validationError) => _validationError = validationError;
+
+            public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+            {
+                if (string.IsNullOrEmpty(_validationError) == false)
+                {
+                    yield return new ValidationResult(_validationError);
+                }
+            }
         }
 
         public class FooCommand
@@ -435,9 +445,25 @@
 
         public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext<FooProcessManager>
         {
+            private int _commitCount = 0;
+
             public DbSet<FooProcessManager> ProcessManagers { get; set; }
 
             public DbSet<PendingCommand> PendingCommands { get; set; }
+
+            public int CommitCount => _commitCount;
+
+            public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+            {
+                try
+                {
+                    return await base.SaveChangesAsync(cancellationToken);
+                }
+                finally
+                {
+                    Interlocked.Increment(ref _commitCount);
+                }
+            }
         }
     }
 }
