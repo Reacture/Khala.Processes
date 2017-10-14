@@ -110,6 +110,7 @@
         {
             UpsertProcessManager(processManager);
             InsertPendingCommands(processManager, correlationId);
+            InsertPendingScheduledCommands(processManager, correlationId);
             return Commit(cancellationToken);
         }
 
@@ -129,6 +130,22 @@
                 .Select(envelope => PendingCommand.FromEnvelope(processManager, envelope, _serializer));
 
             _dbContext.PendingCommands.AddRange(pendingCommands);
+        }
+
+        private void InsertPendingScheduledCommands(T processManager, Guid? correlationId)
+        {
+            IEnumerable<PendingScheduledCommand> pendingScheduledCommands =
+                from scheduledCommand in processManager.FlushPendingScheduledCommands()
+                let scheduledEnvelope =
+                    new ScheduledEnvelope(
+                        new Envelope(
+                            Guid.NewGuid(),
+                            correlationId,
+                            scheduledCommand.Command),
+                        scheduledCommand.ScheduledTime)
+                select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, _serializer);
+
+            _dbContext.PendingScheduledCommands.AddRange(pendingScheduledCommands);
         }
 
         private Task Commit(CancellationToken cancellationToken)

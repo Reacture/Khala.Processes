@@ -240,9 +240,10 @@
                 new ProcessManagerDbContext(),
                 serializer,
                 Mock.Of<ICommandPublisher>());
+
+            // Act
             using (sut)
             {
-                // Act
                 await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
             }
 
@@ -264,6 +265,54 @@
                     t.actual.MessageId.Should().NotBeEmpty();
                     t.actual.CorrelationId.Should().Be(correlationId);
                     serializer.Deserialize(t.actual.CommandJson).ShouldBeEquivalentTo(t.expected, opts => opts.RespectingRuntimeTypes());
+                }
+            }
+        }
+
+        [TestMethod]
+        public async Task SaveProcessManagerAndPublishCommands_inserts_pending_scheduled_commands_sequentially()
+        {
+            // Arrange
+            var fixture = new Fixture();
+#pragma warning disable SA1009 // Disable warning SA1009(Closing parenthesis must be spaced correctly) for generic types of tuples
+            IEnumerable<(FooCommand command, DateTimeOffset scheduledTime)> scheduledCommands = fixture.CreateMany<(FooCommand, DateTimeOffset)>();
+#pragma warning restore SA1009 // Disable warning SA1009(Closing parenthesis must be spaced correctly) for generic types of tuples
+            var processManager = new FooProcessManager(
+                from e in scheduledCommands
+                select new ScheduledCommand(e.command, e.scheduledTime));
+            var correlationId = Guid.NewGuid();
+            var serializer = new JsonMessageSerializer();
+
+            // Act
+            using (var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+                                 new ProcessManagerDbContext(),
+                                 serializer,
+                                 Mock.Of<ICommandPublisher>()))
+            {
+                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
+            }
+
+            // Assert
+            using (var db = new ProcessManagerDbContext())
+            {
+                IQueryable<PendingScheduledCommand> query =
+                    from c in db.PendingScheduledCommands
+                    where c.ProcessManagerId == processManager.Id
+                    orderby c.Id
+                    select c;
+
+                List<PendingScheduledCommand> pendingScheduledCommands = query.ToList();
+                pendingScheduledCommands.Should().HaveCount(scheduledCommands.Count());
+#pragma warning disable SA1008 // Disable warning SA1008(Opening parenthesis must be spaced correctly) for generic types of tuples
+                foreach (var t in scheduledCommands.Zip(pendingScheduledCommands, (expected, actual) => (expected, actual)))
+#pragma warning restore SA1008 // Disable warning SA1008(Opening parenthesis must be spaced correctly) for generic types of tuples
+                {
+                    t.actual.ProcessManagerType.Should().Be(typeof(FooProcessManager).FullName);
+                    t.actual.ProcessManagerId.Should().Be(processManager.Id);
+                    t.actual.MessageId.Should().NotBeEmpty();
+                    t.actual.CorrelationId.Should().Be(correlationId);
+                    serializer.Deserialize(t.actual.CommandJson).ShouldBeEquivalentTo(t.expected.command, opts => opts.RespectingRuntimeTypes());
+                    t.actual.ScheduledTime.Should().Be(t.expected.scheduledTime);
                 }
             }
         }
@@ -418,6 +467,14 @@
                 foreach (object command in commands)
                 {
                     AddCommand(command);
+                }
+            }
+
+            public FooProcessManager(IEnumerable<ScheduledCommand> scheduledCommands)
+            {
+                foreach (ScheduledCommand scheduledCommand in scheduledCommands)
+                {
+                    AddScheduledCommand(scheduledCommand);
                 }
             }
 
