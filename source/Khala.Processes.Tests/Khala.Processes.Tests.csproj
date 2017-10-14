@@ -108,6 +108,7 @@
     <Compile Include="Processes\CompositeCommandPublisherExceptionHandler_specs.cs" />
     <Compile Include="Processes\DelegatingCommandPublisherExceptionHandler_specs.cs" />
     <Compile Include="Processes\ICommandPublisherExceptionHandler_specs.cs" />
+    <Compile Include="Processes\ScheduledCommand_specs.cs" />
     <Compile Include="Processes\Sql\IProcessManagerDbContext_specs.cs" />
     <Compile Include="Processes\Sql\PendingCommand_specs.cs" />
     <Compile Include="Processes\Sql\PendingScheduledCommand_specs.cs" />

@@ -160,12 +160,12 @@
             var sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            var command = new object();
+            var scheduledCommand = new ScheduledCommand(new object(), DateTimeOffset.Now);
 
-            mut.Invoke(sut, new[] { command });
+            mut.Invoke(sut, new[] { scheduledCommand });
 
-            IEnumerable<object> actual = sut.FlushPendingScheduledCommands();
-            actual.Should().ContainSingle().Which.Should().BeSameAs(command);
+            IEnumerable<ScheduledCommand> actual = sut.FlushPendingScheduledCommands();
+            actual.Should().ContainSingle().Which.Should().BeSameAs(scheduledCommand);
         }
 
         [TestMethod]
@@ -174,13 +174,14 @@
             var sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            mut.Invoke(sut, new[] { new object() });
-            var command = new object();
+            var existingScheduledCommand = new ScheduledCommand(new object(), DateTimeOffset.Now);
+            mut.Invoke(sut, new[] { existingScheduledCommand });
+            var scheduledCommand = new ScheduledCommand(new object(), DateTimeOffset.Now);
 
-            mut.Invoke(sut, new[] { command });
+            mut.Invoke(sut, new[] { scheduledCommand });
 
-            IEnumerable<object> actual = sut.FlushPendingScheduledCommands();
-            actual.Should().HaveCount(2).And.HaveElementAt(1, command);
+            IEnumerable<ScheduledCommand> actual = sut.FlushPendingScheduledCommands();
+            actual.Should().HaveCount(2).And.HaveElementAt(1, scheduledCommand);
         }
 
         [TestMethod]
@@ -189,13 +190,14 @@
             var sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            mut.Invoke(sut, new[] { new object() });
-            mut.Invoke(sut, new[] { new object() });
-            mut.Invoke(sut, new[] { new object() });
+            var fixture = new Fixture();
+            mut.Invoke(sut, new[] { fixture.Create<ScheduledCommand>() });
+            mut.Invoke(sut, new[] { fixture.Create<ScheduledCommand>() });
+            mut.Invoke(sut, new[] { fixture.Create<ScheduledCommand>() });
 
             sut.FlushPendingScheduledCommands();
 
-            IEnumerable<object> actual = sut.FlushPendingScheduledCommands();
+            IEnumerable<ScheduledCommand> actual = sut.FlushPendingScheduledCommands();
             actual.Should().NotBeNull().And.BeEmpty();
         }
     }
