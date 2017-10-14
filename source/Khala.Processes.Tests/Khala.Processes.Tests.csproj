@@ -110,6 +110,7 @@
     <Compile Include="Processes\ICommandPublisherExceptionHandler_specs.cs" />
     <Compile Include="Processes\Sql\IProcessManagerDbContext_specs.cs" />
     <Compile Include="Processes\Sql\PendingCommand_specs.cs" />
+    <Compile Include="Processes\Sql\PendingScheduledCommand_specs.cs" />
     <Compile Include="Processes\Sql\ProcessManager_specs.cs" />
     <Compile Include="Processes\Sql\SqlCommandPublisher_specs.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContextT_specs.cs" />

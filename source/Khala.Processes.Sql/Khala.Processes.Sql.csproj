@@ -71,6 +71,7 @@
     <Compile Include="Processes\Sql\IProcessManagerDbContext.cs" />
     <Compile Include="Processes\Sql\IProcessManagerDbContext{T}.cs" />
     <Compile Include="Processes\Sql\PendingCommand.cs" />
+    <Compile Include="Processes\Sql\PendingScheduledCommand.cs" />
     <Compile Include="Processes\Sql\ProcessManager.cs" />
     <Compile Include="Processes\Sql\SqlCommandPublisher.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContext{T}.cs" />
