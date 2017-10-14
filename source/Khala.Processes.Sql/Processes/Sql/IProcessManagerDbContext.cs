@@ -10,6 +10,8 @@
     {
         DbSet<PendingCommand> PendingCommands { get; }
 
+        DbSet<PendingScheduledCommand> PendingScheduledCommands { get; }
+
         DbEntityEntry Entry(object entity);
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);

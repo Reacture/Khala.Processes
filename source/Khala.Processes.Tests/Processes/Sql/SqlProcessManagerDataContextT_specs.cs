@@ -451,6 +451,8 @@
 
             public DbSet<PendingCommand> PendingCommands { get; set; }
 
+            public DbSet<PendingScheduledCommand> PendingScheduledCommands { get; set; }
+
             public int CommitCount => _commitCount;
 
             public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)

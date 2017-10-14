@@ -305,6 +305,8 @@
             public DbSet<FooProcessManager> ProcessManagers { get; set; }
 
             public DbSet<PendingCommand> PendingCommands { get; set; }
+
+            public DbSet<PendingScheduledCommand> PendingScheduledCommands { get; set; }
         }
 
         private class CompletableMessageBus : IMessageBus
