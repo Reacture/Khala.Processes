@@ -9,6 +9,7 @@
     public abstract class ProcessManager
     {
         private readonly List<object> _pendingCommands = new List<object>();
+        private readonly List<object> _pendingScheduledCommands = new List<object>();
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Entity Framework calls the private setter.")]
         [Key]
@@ -38,6 +39,29 @@
             finally
             {
                 _pendingCommands.Clear();
+            }
+        }
+
+        protected void AddScheduledCommand(object command)
+        {
+            if (command == null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+
+            _pendingScheduledCommands.Add(command);
+        }
+
+        public IEnumerable<object> FlushPendingScheduledCommands()
+        {
+            List<object> scheduledCommands = _pendingScheduledCommands.ToList();
+            try
+            {
+                return scheduledCommands;
+            }
+            finally
+            {
+                _pendingScheduledCommands.Clear();
             }
         }
     }
