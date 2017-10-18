@@ -2,7 +2,7 @@ version: 0.5.{build}
 image: Visual Studio 2017
 configuration: Release
 before_build:
-- cmd: nuget restore source\Khala.Processes.sln
+- cmd: .\nuget\nuget.exe restore source\Khala.Processes.sln
 build:
   verbosity: minimal
 after_build:
