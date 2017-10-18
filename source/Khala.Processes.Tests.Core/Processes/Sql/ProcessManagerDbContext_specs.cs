@@ -47,5 +47,31 @@
             IProperty property = sut.FindProperty("MessageId");
             property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique);
         }
+
+        [Fact]
+        public void model_has_PendingScheduledCommand_entity()
+        {
+            var sut = new ProcessManagerDbContext(_dbContextOptions);
+            IEntityType actual = sut.Model.FindEntityType(typeof(PendingScheduledCommand));
+            actual.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void PendingScheduledCommand_entity_has_index_for_ProcessManagerId()
+        {
+            var context = new ProcessManagerDbContext(_dbContextOptions);
+            IEntityType sut = context.Model.FindEntityType(typeof(PendingScheduledCommand));
+            IProperty property = sut.FindProperty("ProcessManagerId");
+            property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique == false);
+        }
+
+        [Fact]
+        public void PendingScheduledCommand_entity_has_index_for_MessageId()
+        {
+            var context = new ProcessManagerDbContext(_dbContextOptions);
+            IEntityType sut = context.Model.FindEntityType(typeof(PendingScheduledCommand));
+            IProperty property = sut.FindProperty("MessageId");
+            property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique);
+        }
     }
 }

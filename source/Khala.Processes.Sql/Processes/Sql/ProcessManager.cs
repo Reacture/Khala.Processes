@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
 
     public abstract class ProcessManager
@@ -16,7 +15,7 @@
         public long SequenceId { get; private set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Entity Framework calls the private setter.")]
-        [Index(IsUnique = true)]
+        [System.ComponentModel.DataAnnotations.Schema.Index(IsUnique = true)]
         public Guid Id { get; private set; } = Guid.NewGuid();
 
         protected void AddCommand(object command)

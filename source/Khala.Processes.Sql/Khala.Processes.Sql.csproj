@@ -70,10 +70,12 @@
     <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\PendingCommand.cs">
       <Link>Processes\Sql\PendingCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\PendingScheduledCommand.cs">
+      <Link>Processes\Sql\PendingScheduledCommand.cs</Link>
+    </Compile>
     <Compile Include="Processes\DefaultCommandPublisherExceptionHandler.cs" />
     <Compile Include="Processes\Sql\IProcessManagerDbContext.cs" />
     <Compile Include="Processes\Sql\IProcessManagerDbContext{T}.cs" />
-    <Compile Include="Processes\Sql\PendingScheduledCommand.cs" />
     <Compile Include="Processes\Sql\ProcessManager.cs" />
     <Compile Include="Processes\Sql\SqlCommandPublisher.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContext{T}.cs" />

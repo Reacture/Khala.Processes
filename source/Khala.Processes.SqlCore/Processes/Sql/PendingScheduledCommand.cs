@@ -2,7 +2,6 @@
 {
     using System;
     using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
     using Khala.Messaging;
 
     public class PendingScheduledCommand
@@ -13,10 +12,16 @@
         [Required]
         public string ProcessManagerType { get; private set; }
 
-        [Index]
+#if NETCOREAPP2_0
+#else
+        [System.ComponentModel.DataAnnotations.Schema.Index]
+#endif
         public Guid ProcessManagerId { get; private set; }
 
-        [Index(IsUnique = true)]
+#if NETCOREAPP2_0
+#else
+        [System.ComponentModel.DataAnnotations.Schema.Index(IsUnique = true)]
+#endif
         public Guid MessageId { get; private set; }
 
         public Guid? CorrelationId { get; private set; }
