@@ -2,13 +2,18 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.Entity;
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
     using Khala.Messaging;
+
+#if NETCOREAPP2_0
+    using Microsoft.EntityFrameworkCore;
+#else
+    using System.Data.Entity;
+#endif
 
     public sealed class SqlProcessManagerDataContext<T> : IDisposable
         where T : ProcessManager

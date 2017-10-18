@@ -67,6 +67,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Khala.Processes.SqlCore\Processes\DefaultCommandPublisherExceptionHandler.cs">
+      <Link>Processes\DefaultCommandPublisherExceptionHandler.cs</Link>
+    </Compile>
     <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\IProcessManagerDbContext.cs">
       <Link>Processes\Sql\IProcessManagerDbContext.cs</Link>
     </Compile>
@@ -82,8 +85,9 @@
     <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\SqlCommandPublisher.cs">
       <Link>Processes\Sql\SqlCommandPublisher.cs</Link>
     </Compile>
-    <Compile Include="Processes\DefaultCommandPublisherExceptionHandler.cs" />
-    <Compile Include="Processes\Sql\SqlProcessManagerDataContext{T}.cs" />
+    <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\SqlProcessManagerDataContext{T}.cs">
+      <Link>Processes\Sql\SqlProcessManagerDataContext{T}.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
