@@ -73,5 +73,45 @@
             IProperty property = sut.FindProperty("MessageId");
             property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique);
         }
+
+        [Fact]
+        public void process_manager_entity_has_primary_key()
+        {
+            var context = new FooProcessManagerDbContext(_dbContextOptions);
+            IEntityType sut = context.Model.FindEntityType(typeof(FooProcessManager));
+            sut.FindPrimaryKey().Properties.Should().ContainSingle(p => p.Name == "SequenceId");
+        }
+
+        [Fact]
+        public void process_manager_entity_has_Id_property()
+        {
+            var context = new FooProcessManagerDbContext(_dbContextOptions);
+            IEntityType sut = context.Model.FindEntityType(typeof(FooProcessManager));
+            IProperty actual = sut.FindProperty("Id");
+            actual.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void process_manager_entity_has_index_for_Id()
+        {
+            var context = new FooProcessManagerDbContext(_dbContextOptions);
+            IEntityType sut = context.Model.FindEntityType(typeof(FooProcessManager));
+            IProperty property = sut.FindProperty("Id");
+            property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique);
+        }
+
+        public class FooProcessManager : ProcessManager
+        {
+        }
+
+        public class FooProcessManagerDbContext : ProcessManagerDbContext
+        {
+            public FooProcessManagerDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<FooProcessManager> FooProcessManagers { get; set; }
+        }
     }
 }
