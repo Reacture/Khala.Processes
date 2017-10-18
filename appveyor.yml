@@ -1,4 +1,4 @@
-version: 0.5.{build}
+version: 0.6.{build}
 image: Visual Studio 2017
 configuration: Release
 before_build:
@@ -12,6 +12,8 @@ after_build:
     nuget pack nuget\Khala.Processes.Abstraction.nuspec
 
     nuget pack nuget\Khala.Processes.Sql.nuspec
+
+    nuget pack nuget\Khala.Processes.SqlCore.nuspec
 test:
   assemblies: '**\*.tests.dll'
 artifacts:

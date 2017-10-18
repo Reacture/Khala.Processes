@@ -1,27 +1,27 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>Khala.Processes.Sql</id>
+    <id>Khala.Processes.SqlCore</id>
     <version>0.6.0</version>
-    <title>Khala.Processes.Sql</title>
+    <title>Khala.Processes.SqlCore</title>
     <authors>Gyuwon</authors>
     <owners>Gyuwon</owners>
     <licenseUrl>https://github.com/Reacture/Khala.Processes/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/Reacture/Khala.Processes</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Process manager implementation based on relational database</description>
+    <description>Process manager implementation based on relational database for .NET Core</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright Gyuwon 2017</copyright>
     <tags>Khala Process Manager Saga</tags>
     <dependencies>
-      <group targetFramework="net461">
+      <group targetFramework="netstandard2.0">
         <dependency id="Khala.Processes.Abstraction" version="0.6.0" exclude="build,analyzers" />
         <dependency id="Khala.Messaging.Abstraction" version="0.16.1" exclude="build,analyzers" />
-        <dependency id="EntityFramework" version="6.1.0" exclude="build,analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="2.0.0" exclude="build,analyzers" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\source\Khala.Processes.Sql\bin\Release\Khala.Processes.Sql.dll" target="lib\net461\Khala.Processes.Sql.dll" />
+    <file src="..\source\Khala.Processes.SqlCore\bin\Release\netstandard2.0\Khala.Processes.SqlCore.dll" target="lib\netstandard2.0\Khala.Processes.SqlCore.dll" />
   </files>
 </package>
