@@ -80,7 +80,6 @@
       <Link>Processes\Sql\ProcessManager.cs</Link>
     </Compile>
     <Compile Include="Processes\DefaultCommandPublisherExceptionHandler.cs" />
-    <Compile Include="Processes\Sql\IProcessManagerDbContext{T}.cs" />
     <Compile Include="Processes\Sql\SqlCommandPublisher.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContext{T}.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

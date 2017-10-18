@@ -29,7 +29,7 @@
         [TestMethod]
         public void Dispose_disposes_db_context()
         {
-            var context = Mock.Of<IProcessManagerDbContext<FooProcessManager>>();
+            var context = Mock.Of<IProcessManagerDbContext>();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 context,
                 new JsonMessageSerializer(),
@@ -500,7 +500,7 @@
             public string StringValue { get; set; }
         }
 
-        public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext<FooProcessManager>
+        public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext
         {
             private int _commitCount = 0;
 

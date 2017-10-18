@@ -18,6 +18,10 @@
 
         DbSet<PendingScheduledCommand> PendingScheduledCommands { get; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "Set", Justification = "The name follows Entity Framework or Entity Framework Core.")]
+        DbSet<TEntity> Set<TEntity>()
+            where TEntity : class;
+
 #if NETCOREAPP2_0
         EntityEntry Entry(object entity);
 #else

@@ -13,13 +13,13 @@
     public sealed class SqlProcessManagerDataContext<T> : IDisposable
         where T : ProcessManager
     {
-        private readonly IProcessManagerDbContext<T> _dbContext;
+        private readonly IProcessManagerDbContext _dbContext;
         private readonly IMessageSerializer _serializer;
         private readonly ICommandPublisher _commandPublisher;
         private readonly ICommandPublisherExceptionHandler _commandPublisherExceptionHandler;
 
         public SqlProcessManagerDataContext(
-            IProcessManagerDbContext<T> dbContext,
+            IProcessManagerDbContext dbContext,
             IMessageSerializer serializer,
             ICommandPublisher commandPublisher,
             ICommandPublisherExceptionHandler commandPublisherExceptionHandler)
@@ -31,7 +31,7 @@
         }
 
         public SqlProcessManagerDataContext(
-            IProcessManagerDbContext<T> dbContext,
+            IProcessManagerDbContext dbContext,
             IMessageSerializer serializer,
             ICommandPublisher commandPublisher)
             : this(
@@ -71,7 +71,7 @@
             Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
         {
             return _dbContext
-                .ProcessManagers
+                .Set<T>()
                 .Where(predicate)
                 .SingleOrDefaultAsync(cancellationToken);
         }
@@ -118,7 +118,7 @@
         {
             if (_dbContext.Entry(processManager).State == EntityState.Detached)
             {
-                _dbContext.ProcessManagers.Add(processManager);
+                _dbContext.Set<T>().Add(processManager);
             }
         }
 
