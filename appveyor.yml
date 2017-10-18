@@ -7,6 +7,8 @@ build:
   verbosity: minimal
 after_build:
 - cmd: >-
+    dotnet test .\source\Khala.Processes.Tests.Core\
+
     nuget pack nuget\Khala.Processes.Abstraction.nuspec
 
     nuget pack nuget\Khala.Processes.Sql.nuspec
