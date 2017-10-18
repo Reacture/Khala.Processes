@@ -79,8 +79,10 @@
     <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\ProcessManager.cs">
       <Link>Processes\Sql\ProcessManager.cs</Link>
     </Compile>
+    <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\SqlCommandPublisher.cs">
+      <Link>Processes\Sql\SqlCommandPublisher.cs</Link>
+    </Compile>
     <Compile Include="Processes\DefaultCommandPublisherExceptionHandler.cs" />
-    <Compile Include="Processes\Sql\SqlCommandPublisher.cs" />
     <Compile Include="Processes\Sql\SqlProcessManagerDataContext{T}.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
