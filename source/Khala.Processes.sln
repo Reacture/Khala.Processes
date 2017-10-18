@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{DD9CC521-D32B-43C3-9E31-1D434A61D612}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,7 +15,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Tests", "Kh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Sql", "Khala.Processes.Sql\Khala.Processes.Sql.csproj", "{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Abstraction", "Khala.Processes.Abstraction\Khala.Processes.Abstraction.csproj", "{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Khala.Processes.Abstraction", "Khala.Processes.Abstraction\Khala.Processes.Abstraction.csproj", "{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Khala.Processes.SqlCore", "Khala.Processes.SqlCore\Khala.Processes.SqlCore.csproj", "{5B58B293-67D8-46A4-A10A-3FF684AFCB11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Tests.Core", "Khala.Processes.Tests.Core\Khala.Processes.Tests.Core.csproj", "{4B57E3A5-33FD-498A-97B8-372B90A03E59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +39,14 @@ Global
 		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B58B293-67D8-46A4-A10A-3FF684AFCB11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B58B293-67D8-46A4-A10A-3FF684AFCB11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B58B293-67D8-46A4-A10A-3FF684AFCB11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B58B293-67D8-46A4-A10A-3FF684AFCB11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B57E3A5-33FD-498A-97B8-372B90A03E59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B57E3A5-33FD-498A-97B8-372B90A03E59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B57E3A5-33FD-498A-97B8-372B90A03E59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B57E3A5-33FD-498A-97B8-372B90A03E59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

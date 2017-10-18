@@ -2,11 +2,13 @@ version: 0.5.{build}
 image: Visual Studio 2017
 configuration: Release
 before_build:
-- cmd: nuget restore source\Khala.Processes.sln
+- cmd: .\nuget\nuget.exe restore source\Khala.Processes.sln
 build:
   verbosity: minimal
 after_build:
 - cmd: >-
+    dotnet test .\source\Khala.Processes.Tests.Core\
+
     nuget pack nuget\Khala.Processes.Abstraction.nuspec
 
     nuget pack nuget\Khala.Processes.Sql.nuspec

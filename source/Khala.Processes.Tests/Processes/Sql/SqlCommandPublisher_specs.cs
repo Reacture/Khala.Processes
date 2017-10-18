@@ -527,7 +527,7 @@
             public string StringValue { get; set; }
         }
 
-        public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext<FooProcessManager>
+        public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext
         {
             public DbSet<FooProcessManager> ProcessManagers { get; set; }
 
