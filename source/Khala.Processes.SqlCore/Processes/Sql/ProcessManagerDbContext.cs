@@ -6,7 +6,7 @@
     using Microsoft.EntityFrameworkCore.Metadata;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-    public class ProcessManagerDbContext : DbContext
+    public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext
     {
         public ProcessManagerDbContext(DbContextOptions options)
             : base(options)
