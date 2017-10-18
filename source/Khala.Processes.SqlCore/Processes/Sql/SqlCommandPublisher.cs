@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using Khala.Messaging;
 
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
     using Microsoft.EntityFrameworkCore;
 #else
     using System.Data.Entity;
@@ -118,7 +118,7 @@
                 dbContext.PendingCommands.Remove(command);
                 await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
             catch (DbUpdateConcurrencyException)
 #else
             catch (DbUpdateConcurrencyException exception)
@@ -193,7 +193,7 @@
                 dbContext.PendingScheduledCommands.Remove(scheduledCommand);
                 await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
             catch (DbUpdateConcurrencyException)
 #else
             catch (DbUpdateConcurrencyException exception)

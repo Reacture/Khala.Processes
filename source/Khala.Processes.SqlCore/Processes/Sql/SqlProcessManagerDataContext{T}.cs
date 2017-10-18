@@ -9,7 +9,7 @@
     using System.Threading.Tasks;
     using Khala.Messaging;
 
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
     using Microsoft.EntityFrameworkCore;
 #else
     using System.Data.Entity;

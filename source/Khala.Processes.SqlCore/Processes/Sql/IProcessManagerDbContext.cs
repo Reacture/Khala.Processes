@@ -4,7 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;
 #else
@@ -22,7 +22,7 @@
         DbSet<TEntity> Set<TEntity>()
             where TEntity : class;
 
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
         EntityEntry Entry(object entity);
 #else
         DbEntityEntry Entry(object entity);

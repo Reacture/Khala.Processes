@@ -12,13 +12,13 @@
         [Required]
         public string ProcessManagerType { get; private set; }
 
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
 #else
         [System.ComponentModel.DataAnnotations.Schema.Index]
 #endif
         public Guid ProcessManagerId { get; private set; }
 
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
 #else
         [System.ComponentModel.DataAnnotations.Schema.Index(IsUnique = true)]
 #endif
