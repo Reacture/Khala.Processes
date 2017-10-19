@@ -23,12 +23,6 @@
         }
 
         [Fact]
-        public void sut_implements_IProcessManagerDbContext()
-        {
-            typeof(ProcessManagerDbContext).Should().Implement<IProcessManagerDbContext>();
-        }
-
-        [Fact]
         public void model_has_PendingCommand_entity()
         {
             var sut = new ProcessManagerDbContext(_dbContextOptions);

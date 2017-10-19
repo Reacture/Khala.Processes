@@ -29,21 +29,21 @@
         [TestMethod]
         public void Dispose_disposes_db_context()
         {
-            var context = Mock.Of<IProcessManagerDbContext>();
+            var disposable = Mock.Of<IDisposable>();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                context,
+                new FooProcessManagerDbContext { DisposableResource = disposable },
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
 
             sut.Dispose();
 
-            Mock.Get(context).Verify(x => x.Dispose(), Times.Once());
+            Mock.Get(disposable).Verify(x => x.Dispose(), Times.Once());
         }
 
         [TestMethod]
         public void sut_has_guard_clauses()
         {
-            var builder = new Fixture().Customize(new AutoMoqCustomization());
+            var builder = new Fixture { OmitAutoProperties = true }.Customize(new AutoMoqCustomization());
             new GuardClauseAssertion(builder).Verify(typeof(SqlProcessManagerDataContext<>));
         }
 
@@ -61,7 +61,7 @@
         {
             // Arrange
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             using (sut)
@@ -87,21 +87,21 @@
 
             FooProcessManager expected = processManagers.First();
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 var random = new Random();
                 foreach (FooProcessManager processManager in from p in processManagers
                                                              orderby random.Next()
                                                              select p)
                 {
-                    db.ProcessManagers.Add(processManager);
+                    db.FooProcessManagers.Add(processManager);
                 }
 
                 await db.SaveChangesAsync();
             }
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             using (sut)
@@ -124,12 +124,12 @@
             var publisher = Mock.Of<ICommandPublisher>();
             var processManager = new FooProcessManager();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 publisher);
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
-                db.ProcessManagers.Add(processManager);
+                db.FooProcessManagers.Add(processManager);
                 await db.SaveChangesAsync();
             }
 
@@ -146,7 +146,7 @@
             // Arrange
             var processManager = new FooProcessManager { AggregateId = Guid.NewGuid() };
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             using (sut)
@@ -158,10 +158,10 @@
             }
 
             // Assert
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 FooProcessManager actual = await
-                    db.ProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
+                    db.FooProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
                 actual.Should().NotBeNull();
                 actual.AggregateId.Should().Be(processManager.AggregateId);
             }
@@ -173,16 +173,16 @@
             // Arrange
             var fixture = new Fixture();
             var processManager = fixture.Create<FooProcessManager>();
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
-                db.ProcessManagers.Add(processManager);
+                db.FooProcessManagers.Add(processManager);
                 await db.SaveChangesAsync();
             }
 
             string statusValue = fixture.Create(nameof(FooProcessManager.StatusValue));
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             using (sut)
@@ -197,10 +197,10 @@
             }
 
             // Assert
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 FooProcessManager actual = await
-                    db.ProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
+                    db.FooProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
                 actual.StatusValue.Should().Be(statusValue);
             }
         }
@@ -210,7 +210,7 @@
         {
             // Arrange
             var cancellationToken = CancellationToken.None;
-            var context = new ProcessManagerDbContext();
+            var context = new FooProcessManagerDbContext();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 context,
                 new JsonMessageSerializer(),
@@ -237,7 +237,7 @@
             var serializer = new JsonMessageSerializer();
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 serializer,
                 Mock.Of<ICommandPublisher>());
 
@@ -248,7 +248,7 @@
             }
 
             // Assert
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 IQueryable<PendingCommand> query =
                     from c in db.PendingCommands
@@ -285,7 +285,7 @@
 
             // Act
             using (var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                                 new ProcessManagerDbContext(),
+                                 new FooProcessManagerDbContext(),
                                  serializer,
                                  Mock.Of<ICommandPublisher>()))
             {
@@ -293,7 +293,7 @@
             }
 
             // Assert
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 IQueryable<PendingScheduledCommand> query =
                     from c in db.PendingScheduledCommands
@@ -325,7 +325,7 @@
             var processManager = fixture.Create<FooProcessManager>();
             var publisher = Mock.Of<ICommandPublisher>();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 publisher);
 
@@ -345,7 +345,7 @@
             var processManager = fixture.Create<FooProcessManager>();
             processManager.SetValidationError("invalid process manager state");
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 publisher);
 
@@ -372,7 +372,7 @@
             var commandPublisherExceptionHandler = Mock.Of<ICommandPublisherExceptionHandler>();
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 commandPublisher,
                 commandPublisherExceptionHandler);
@@ -406,7 +406,7 @@
                 .ThrowsAsync(exception);
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 commandPublisher,
                 new DelegatingCommandPublisherExceptionHandler(
@@ -436,7 +436,7 @@
                 .ThrowsAsync(new InvalidOperationException());
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new ProcessManagerDbContext(),
+                new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 commandPublisher,
                 new DelegatingCommandPublisherExceptionHandler(
@@ -500,15 +500,13 @@
             public string StringValue { get; set; }
         }
 
-        public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext
+        public class FooProcessManagerDbContext : ProcessManagerDbContext
         {
             private int _commitCount = 0;
 
-            public DbSet<FooProcessManager> ProcessManagers { get; set; }
+            public DbSet<FooProcessManager> FooProcessManagers { get; set; }
 
-            public DbSet<PendingCommand> PendingCommands { get; set; }
-
-            public DbSet<PendingScheduledCommand> PendingScheduledCommands { get; set; }
+            public IDisposable DisposableResource { get; set; }
 
             public int CommitCount => _commitCount;
 
@@ -521,6 +519,16 @@
                 finally
                 {
                     Interlocked.Increment(ref _commitCount);
+                }
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                base.Dispose(disposing);
+
+                if (disposing)
+                {
+                    DisposableResource?.Dispose();
                 }
             }
         }

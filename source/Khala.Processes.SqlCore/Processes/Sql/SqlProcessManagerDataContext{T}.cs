@@ -18,13 +18,13 @@
     public sealed class SqlProcessManagerDataContext<T> : IDisposable
         where T : ProcessManager
     {
-        private readonly IProcessManagerDbContext _dbContext;
+        private readonly ProcessManagerDbContext _dbContext;
         private readonly IMessageSerializer _serializer;
         private readonly ICommandPublisher _commandPublisher;
         private readonly ICommandPublisherExceptionHandler _commandPublisherExceptionHandler;
 
         public SqlProcessManagerDataContext(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             IMessageSerializer serializer,
             ICommandPublisher commandPublisher,
             ICommandPublisherExceptionHandler commandPublisherExceptionHandler)
@@ -36,7 +36,7 @@
         }
 
         public SqlProcessManagerDataContext(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             IMessageSerializer serializer,
             ICommandPublisher commandPublisher)
             : this(

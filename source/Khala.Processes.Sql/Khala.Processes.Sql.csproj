@@ -70,9 +70,6 @@
     <Compile Include="..\Khala.Processes.SqlCore\Processes\DefaultCommandPublisherExceptionHandler.cs">
       <Link>Processes\DefaultCommandPublisherExceptionHandler.cs</Link>
     </Compile>
-    <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\IProcessManagerDbContext.cs">
-      <Link>Processes\Sql\IProcessManagerDbContext.cs</Link>
-    </Compile>
     <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\PendingCommand.cs">
       <Link>Processes\Sql\PendingCommand.cs</Link>
     </Compile>
@@ -81,6 +78,9 @@
     </Compile>
     <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\ProcessManager.cs">
       <Link>Processes\Sql\ProcessManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\ProcessManagerDbContext.cs">
+      <Link>Processes\Sql\ProcessManagerDbContext.cs</Link>
     </Compile>
     <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\SqlCommandPublisher.cs">
       <Link>Processes\Sql\SqlCommandPublisher.cs</Link>

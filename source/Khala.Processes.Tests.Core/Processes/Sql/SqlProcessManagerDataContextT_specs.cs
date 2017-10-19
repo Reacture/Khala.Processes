@@ -33,15 +33,15 @@
         [Fact]
         public void Dispose_disposes_db_context()
         {
-            var context = Mock.Of<IProcessManagerDbContext>();
+            var disposable = Mock.Of<IDisposable>();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                context,
+                new FooProcessManagerDbContext(_dbContextOptions) { DisposableResource = disposable },
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
 
             sut.Dispose();
 
-            Mock.Get(context).Verify(x => x.Dispose(), Times.Once());
+            Mock.Get(disposable).Verify(x => x.Dispose(), Times.Once());
         }
 
         [Fact]
@@ -91,7 +91,7 @@
                                                              orderby random.Next()
                                                              select p)
                 {
-                    db.ProcessManagers.Add(processManager);
+                    db.FooProcessManagers.Add(processManager);
                 }
 
                 await db.SaveChangesAsync(default);
@@ -126,7 +126,7 @@
                 publisher);
             using (var db = new FooProcessManagerDbContext(_dbContextOptions))
             {
-                db.ProcessManagers.Add(processManager);
+                db.FooProcessManagers.Add(processManager);
                 await db.SaveChangesAsync(default);
             }
 
@@ -158,7 +158,7 @@
             using (var db = new FooProcessManagerDbContext(_dbContextOptions))
             {
                 FooProcessManager actual = await
-                    db.ProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
+                    db.FooProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
                 actual.Should().NotBeNull();
                 actual.AggregateId.Should().Be(processManager.AggregateId);
             }
@@ -176,7 +176,7 @@
             };
             using (var db = new FooProcessManagerDbContext(_dbContextOptions))
             {
-                db.ProcessManagers.Add(processManager);
+                db.FooProcessManagers.Add(processManager);
                 await db.SaveChangesAsync(default);
             }
 
@@ -200,7 +200,7 @@
             using (var db = new FooProcessManagerDbContext(_dbContextOptions))
             {
                 FooProcessManager actual = await
-                    db.ProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
+                    db.FooProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
                 actual.StatusValue.Should().Be(statusValue);
             }
         }
@@ -509,9 +509,11 @@
             {
             }
 
-            public DbSet<FooProcessManager> ProcessManagers { get; set; }
+            public DbSet<FooProcessManager> FooProcessManagers { get; set; }
 
             public int CommitCount => _commitCount;
+
+            public IDisposable DisposableResource { get; set; }
 
             public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
             {
@@ -523,6 +525,13 @@
                 {
                     Interlocked.Increment(ref _commitCount);
                 }
+            }
+
+            public override void Dispose()
+            {
+                base.Dispose();
+
+                DisposableResource?.Dispose();
             }
         }
     }

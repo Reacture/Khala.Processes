@@ -17,13 +17,13 @@
 
     public class SqlCommandPublisher : ICommandPublisher
     {
-        private readonly Func<IProcessManagerDbContext> _dbContextFactory;
+        private readonly Func<ProcessManagerDbContext> _dbContextFactory;
         private readonly IMessageSerializer _serializer;
         private readonly IMessageBus _messageBus;
         private readonly IScheduledMessageBus _scheduledMessageBus;
 
         public SqlCommandPublisher(
-            Func<IProcessManagerDbContext> dbContextFactory,
+            Func<ProcessManagerDbContext> dbContextFactory,
             IMessageSerializer serializer,
             IMessageBus messageBus,
             IScheduledMessageBus scheduledMessageBus)
@@ -46,7 +46,7 @@
 
         private async Task RunFlushCommands(Guid processManagerId, CancellationToken cancellationToken)
         {
-            using (IProcessManagerDbContext context = _dbContextFactory.Invoke())
+            using (ProcessManagerDbContext context = _dbContextFactory.Invoke())
             {
                 await FlushPendingCommands(context, processManagerId, cancellationToken).ConfigureAwait(false);
                 await FlushPendingScheduledCommands(context, processManagerId, cancellationToken).ConfigureAwait(false);
@@ -54,7 +54,7 @@
         }
 
         private async Task FlushPendingCommands(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             Guid processManagerId,
             CancellationToken cancellationToken)
         {
@@ -67,7 +67,7 @@
         }
 
         private static Task<List<PendingCommand>> LoadCommands(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             Guid processManagerId,
             CancellationToken cancellationToken)
         {
@@ -98,7 +98,7 @@
                 _serializer.Deserialize(command.CommandJson));
 
         private static async Task RemoveCommands(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             List<PendingCommand> commands,
             CancellationToken cancellationToken)
         {
@@ -109,7 +109,7 @@
         }
 
         private static async Task RemoveCommand(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             PendingCommand command,
             CancellationToken cancellationToken)
         {
@@ -130,7 +130,7 @@
         }
 
         private async Task FlushPendingScheduledCommands(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             Guid processManagerId,
             CancellationToken cancellationToken)
         {
@@ -140,7 +140,7 @@
         }
 
         private static Task<List<PendingScheduledCommand>> LoadScheduledCommands(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             Guid processManagerId,
             CancellationToken cancellationToken)
         {
@@ -173,7 +173,7 @@
                 scheduledCommand.ScheduledTime);
 
         private static async Task RemoveScheduledCommands(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             IEnumerable<PendingScheduledCommand> scheduledCommands,
             CancellationToken cancellationToken)
         {
@@ -184,7 +184,7 @@
         }
 
         private static async Task RemoveScheduledCommand(
-            IProcessManagerDbContext dbContext,
+            ProcessManagerDbContext dbContext,
             PendingScheduledCommand scheduledCommand,
             CancellationToken cancellationToken)
         {
@@ -206,7 +206,7 @@
 
         public async void EnqueueAll(CancellationToken cancellationToken)
         {
-            using (IProcessManagerDbContext context = _dbContextFactory.Invoke())
+            using (ProcessManagerDbContext context = _dbContextFactory.Invoke())
             {
                 Loop:
 

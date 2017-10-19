@@ -567,7 +567,7 @@
             {
             }
 
-            public DbSet<FooProcessManager> ProcessManagers { get; set; }
+            public DbSet<FooProcessManager> FooProcessManagers { get; set; }
         }
 
         private class MessageBus : IMessageBus

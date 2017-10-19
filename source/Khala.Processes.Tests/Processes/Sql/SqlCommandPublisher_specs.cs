@@ -22,7 +22,7 @@
         [TestMethod]
         public void sut_has_guard_clauses()
         {
-            var builder = new Fixture().Customize(new AutoMoqCustomization());
+            var builder = new Fixture { OmitAutoProperties = true }.Customize(new AutoMoqCustomization());
             new GuardClauseAssertion(builder).Verify(typeof(SqlCommandPublisher));
         }
 
@@ -43,7 +43,7 @@
 
             const int noiseCommandCount = 3;
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 var commands = new List<PendingCommand>(
                     from command in Enumerable.Repeat(new FooCommand(), 3)
@@ -65,7 +65,7 @@
             }
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>(),
                 Mock.Of<IScheduledMessageBus>());
@@ -74,7 +74,7 @@
             await sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 (await db.PendingCommands.AnyAsync(c => c.ProcessManagerId == processManager.Id)).Should().BeFalse();
                 (await db.PendingCommands.CountAsync(c => c.ProcessManagerId == noiseProcessManager.Id)).Should().Be(noiseCommandCount);
@@ -96,7 +96,7 @@
                 from command in fixture.CreateMany<FooCommand>()
                 select new Envelope(Guid.NewGuid(), Guid.NewGuid(), command));
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 db.PendingCommands.AddRange(from envelope in envelopes
                                             select PendingCommand.FromEnvelope(processManager, envelope, serializer));
@@ -110,7 +110,7 @@
             var messageBus = new MessageBus();
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 messageBus,
                 Mock.Of<IScheduledMessageBus>());
@@ -134,7 +134,7 @@
                 let envelope = new Envelope(command)
                 select PendingCommand.FromEnvelope(processManager, envelope, serializer));
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 db.PendingCommands.AddRange(commands);
                 await db.SaveChangesAsync();
@@ -147,7 +147,7 @@
                 .ThrowsAsync(exception);
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 messageBus,
                 Mock.Of<IScheduledMessageBus>());
@@ -157,7 +157,7 @@
 
             // Assert
             action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 IQueryable<PendingCommand> query = from c in db.PendingCommands
                                                    where c.ProcessManagerId == processManager.Id
@@ -174,7 +174,7 @@
             var messageBus = Mock.Of<IMessageBus>();
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
                 messageBus,
                 Mock.Of<IScheduledMessageBus>());
@@ -200,14 +200,14 @@
             var messageBus = new CompletableMessageBus();
             var serializer = new JsonMessageSerializer();
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 messageBus,
                 Mock.Of<IScheduledMessageBus>());
 
             var processManager = new FooProcessManager();
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 db.PendingCommands.AddRange(
                     new Fixture()
@@ -221,7 +221,7 @@
             Func<Task> action = async () =>
             {
                 Task flushTask = sut.FlushCommands(processManager.Id, CancellationToken.None);
-                using (var db = new ProcessManagerDbContext())
+                using (var db = new FooProcessManagerDbContext())
                 {
                     List<PendingCommand> pendingCommands = await db
                         .PendingCommands
@@ -252,7 +252,7 @@
 
             const int noiseCommandCount = 3;
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 var commands = new List<PendingScheduledCommand>(
                     from command in Enumerable.Repeat(new FooCommand(), 3)
@@ -274,7 +274,7 @@
             }
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>(),
                 Mock.Of<IScheduledMessageBus>());
@@ -283,7 +283,7 @@
             await sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 (await db.PendingScheduledCommands.AnyAsync(c => c.ProcessManagerId == processManager.Id)).Should().BeFalse();
                 (await db.PendingScheduledCommands.CountAsync(c => c.ProcessManagerId == noiseProcessManager.Id)).Should().Be(noiseCommandCount);
@@ -305,7 +305,7 @@
                 let envelope = new Envelope(Guid.NewGuid(), Guid.NewGuid(), command)
                 select new ScheduledEnvelope(envelope, fixture.Create<DateTimeOffset>()));
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 db.PendingScheduledCommands.AddRange(
                     from scheduledEnvelope in scheduledEnvelopes
@@ -321,7 +321,7 @@
             var scheduledMessageBus = new ScheduledMessageBus();
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>(),
                 scheduledMessageBus);
@@ -346,7 +346,7 @@
                 let scheduledEnvelope = new ScheduledEnvelope(envelope, fixture.Create<DateTimeOffset>())
                 select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, serializer));
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 db.PendingScheduledCommands.AddRange(scheduledCommands);
                 await db.SaveChangesAsync();
@@ -363,7 +363,7 @@
                 .ThrowsAsync(exception);
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>(),
                 scheduledMessageBus);
@@ -373,7 +373,7 @@
 
             // Assert
             action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 IQueryable<PendingScheduledCommand> query = from c in db.PendingScheduledCommands
                                                             where c.ProcessManagerId == processManager.Id
@@ -390,14 +390,14 @@
             var scheduledMessageBus = new CompletableScheduledMessageBus();
             var serializer = new JsonMessageSerializer();
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>(),
                 scheduledMessageBus);
 
             var processManager = new FooProcessManager();
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 db.PendingScheduledCommands.AddRange(
                     from command in new Fixture().CreateMany<FooCommand>()
@@ -411,7 +411,7 @@
             Func<Task> action = async () =>
             {
                 Task flushTask = sut.FlushCommands(processManager.Id, CancellationToken.None);
-                using (var db = new ProcessManagerDbContext())
+                using (var db = new FooProcessManagerDbContext())
                 {
                     List<PendingScheduledCommand> pendingScheduledCommands = await db
                         .PendingScheduledCommands
@@ -439,7 +439,7 @@
 
             var fixture = new Fixture();
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 for (int i = 0; i < 3; i++)
                 {
@@ -453,7 +453,7 @@
             }
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>(),
                 Mock.Of<IScheduledMessageBus>());
@@ -462,7 +462,7 @@
             sut.EnqueueAll(CancellationToken.None);
 
             // Assert
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 int maximumRetryCount = 5;
                 var retryPolicy = new RetryPolicy<bool>(
@@ -481,7 +481,7 @@
 
             var fixture = new Fixture();
 
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 for (int i = 0; i < 3; i++)
                 {
@@ -496,7 +496,7 @@
             }
 
             var sut = new SqlCommandPublisher(
-                () => new ProcessManagerDbContext(),
+                () => new FooProcessManagerDbContext(),
                 serializer,
                 Mock.Of<IMessageBus>(),
                 Mock.Of<IScheduledMessageBus>());
@@ -505,7 +505,7 @@
             sut.EnqueueAll(CancellationToken.None);
 
             // Assert
-            using (var db = new ProcessManagerDbContext())
+            using (var db = new FooProcessManagerDbContext())
             {
                 int maximumRetryCount = 5;
                 var retryPolicy = new RetryPolicy<bool>(
@@ -527,13 +527,9 @@
             public string StringValue { get; set; }
         }
 
-        public class ProcessManagerDbContext : DbContext, IProcessManagerDbContext
+        public class FooProcessManagerDbContext : ProcessManagerDbContext
         {
-            public DbSet<FooProcessManager> ProcessManagers { get; set; }
-
-            public DbSet<PendingCommand> PendingCommands { get; set; }
-
-            public DbSet<PendingScheduledCommand> PendingScheduledCommands { get; set; }
+            public DbSet<FooProcessManager> FooProcessManagers { get; set; }
         }
 
         private class MessageBus : IMessageBus
