@@ -11,6 +11,7 @@
     using Khala.FakeDomain;
     using Khala.Messaging;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Diagnostics;
     using Moq;
     using Xunit;
 
@@ -474,6 +475,55 @@
             // Act
             Func<Task> action = () =>
             sut.SaveProcessManagerAndPublishCommands(processManager, null, cancellationToken);
+
+            // Assert
+            action.ShouldNotThrow();
+        }
+
+        [Fact]
+        public void given_db_context_does_not_support_transaction_SaveProcessManagerAndPublishCommands_fails()
+        {
+            // Arrange
+            string databaseName = nameof(given_db_context_does_not_support_transaction_SaveProcessManagerAndPublishCommands_fails);
+            DbContextOptions options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(databaseName)
+                .Options;
+
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(options),
+                new JsonMessageSerializer(),
+                Mock.Of<ICommandPublisher>());
+
+            var processManager = new FakeProcessManager();
+
+            // Act
+            Func<Task> action = () =>
+            sut.SaveProcessManagerAndPublishCommands(processManager, null, CancellationToken.None);
+
+            // Assert
+            action.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void given_db_context_supports_transaction_SaveProcessManagerAndPublishCommands_succeeds()
+        {
+            // Arrange
+            string databaseName = nameof(given_db_context_supports_transaction_SaveProcessManagerAndPublishCommands_succeeds);
+            DbContextOptions options = new DbContextOptionsBuilder()
+                .UseInMemoryDatabase(databaseName)
+                .ConfigureWarnings(builder => builder.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .Options;
+
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(options),
+                new JsonMessageSerializer(),
+                Mock.Of<ICommandPublisher>());
+
+            var processManager = new FakeProcessManager();
+
+            // Act
+            Func<Task> action = () =>
+            sut.SaveProcessManagerAndPublishCommands(processManager, null, CancellationToken.None);
 
             // Assert
             action.ShouldNotThrow();

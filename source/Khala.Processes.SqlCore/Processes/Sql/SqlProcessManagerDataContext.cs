@@ -11,6 +11,7 @@
 
 #if NETSTANDARD2_0
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Storage;
 #else
     using System.Data.Entity;
 #endif
@@ -153,10 +154,21 @@
             _dbContext.PendingScheduledCommands.AddRange(pendingScheduledCommands);
         }
 
+#if NETSTANDARD2_0
+        private async Task Commit(CancellationToken cancellationToken)
+        {
+            using (IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false))
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                transaction.Commit();
+            }
+        }
+#else
         private Task Commit(CancellationToken cancellationToken)
         {
             return _dbContext.SaveChangesAsync(cancellationToken);
         }
+#endif
 
         private async Task TryFlushCommands(
             T processManager,
