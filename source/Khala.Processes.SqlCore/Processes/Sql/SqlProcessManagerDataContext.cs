@@ -15,7 +15,7 @@
     using System.Data.Entity;
 #endif
 
-    public sealed class SqlProcessManagerDataContext<T> : IDisposable
+    public sealed class SqlProcessManagerDataContext<T> : ISqlProcessManagerDataContext<T>
         where T : ProcessManager
     {
         private readonly ProcessManagerDbContext _dbContext;

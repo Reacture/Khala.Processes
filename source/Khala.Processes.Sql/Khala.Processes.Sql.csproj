@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\Rules\Khala.Processes.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\Rules\Khala.Processes.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -69,6 +71,9 @@
   <ItemGroup>
     <Compile Include="..\Khala.Processes.SqlCore\Processes\DefaultCommandPublisherExceptionHandler.cs">
       <Link>Processes\DefaultCommandPublisherExceptionHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\ISqlProcessManagerDataContext.cs">
+      <Link>Processes\Sql\ISqlProcessManagerDataContext.cs</Link>
     </Compile>
     <Compile Include="..\Khala.Processes.SqlCore\Processes\Sql\PendingCommand.cs">
       <Link>Processes\Sql\PendingCommand.cs</Link>

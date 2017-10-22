@@ -25,6 +25,12 @@
         }
 
         [Fact]
+        public void sut_implements_ISqlProcessManagerDataContextT()
+        {
+            typeof(SqlProcessManagerDataContext<FakeProcessManager>).Should().Implement<ISqlProcessManagerDataContext<FakeProcessManager>>();
+        }
+
+        [Fact]
         public void sut_implements_IDisposable()
         {
             typeof(SqlProcessManagerDataContext<>).Should().Implement<IDisposable>();
@@ -34,8 +40,8 @@
         public void Dispose_disposes_db_context()
         {
             var disposable = Mock.Of<IDisposable>();
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions) { DisposableResource = disposable },
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions) { DisposableResource = disposable },
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
 
@@ -57,16 +63,16 @@
         public async Task FindProcessManager_returns_null_if_process_manager_that_satisfies_predicate_not_found()
         {
             // Arrange
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             using (sut)
             {
-                Expression<Func<FooProcessManager, bool>> predicate = x => x.Id == Guid.NewGuid();
+                Expression<Func<FakeProcessManager, bool>> predicate = x => x.Id == Guid.NewGuid();
 
                 // Act
-                FooProcessManager actual = await sut.FindProcessManager(predicate, CancellationToken.None);
+                FakeProcessManager actual = await sut.FindProcessManager(predicate, CancellationToken.None);
 
                 // Assert
                 actual.Should().BeNull();
@@ -77,17 +83,17 @@
         public async Task FindProcessManager_returns_process_manager_that_satisfies_predicate()
         {
             // Arrange
-            List<FooProcessManager> processManagers = Enumerable
-                .Repeat<Func<FooProcessManager>>(() => new FooProcessManager { AggregateId = Guid.NewGuid() }, 10)
+            List<FakeProcessManager> processManagers = Enumerable
+                .Repeat<Func<FakeProcessManager>>(() => new FakeProcessManager { AggregateId = Guid.NewGuid() }, 10)
                 .Select(f => f.Invoke())
                 .ToList();
 
-            FooProcessManager expected = processManagers.First();
+            FakeProcessManager expected = processManagers.First();
 
-            using (var db = new FooProcessManagerDbContext(_dbContextOptions))
+            using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
                 var random = new Random();
-                foreach (FooProcessManager processManager in from p in processManagers
+                foreach (FakeProcessManager processManager in from p in processManagers
                                                              orderby random.Next()
                                                              select p)
                 {
@@ -97,16 +103,16 @@
                 await db.SaveChangesAsync(default);
             }
 
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             using (sut)
             {
-                Expression<Func<FooProcessManager, bool>> predicate = x => x.AggregateId == expected.AggregateId;
+                Expression<Func<FakeProcessManager, bool>> predicate = x => x.AggregateId == expected.AggregateId;
 
                 // Act
-                FooProcessManager actual = await sut.FindProcessManager(predicate, default);
+                FakeProcessManager actual = await sut.FindProcessManager(predicate, default);
 
                 // Assert
                 actual.Should().NotBeNull();
@@ -119,12 +125,12 @@
         {
             // Arrange
             var publisher = Mock.Of<ICommandPublisher>();
-            var processManager = new FooProcessManager();
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var processManager = new FakeProcessManager();
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 publisher);
-            using (var db = new FooProcessManagerDbContext(_dbContextOptions))
+            using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
                 db.FooProcessManagers.Add(processManager);
                 await db.SaveChangesAsync(default);
@@ -141,9 +147,9 @@
         public async Task SaveProcessManagerAndPublishCommands_inserts_new_process_manager()
         {
             // Arrange
-            var processManager = new FooProcessManager { AggregateId = Guid.NewGuid() };
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var processManager = new FakeProcessManager { AggregateId = Guid.NewGuid() };
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             using (sut)
@@ -155,9 +161,9 @@
             }
 
             // Assert
-            using (var db = new FooProcessManagerDbContext(_dbContextOptions))
+            using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
-                FooProcessManager actual = await
+                FakeProcessManager actual = await
                     db.FooProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
                 actual.Should().NotBeNull();
                 actual.AggregateId.Should().Be(processManager.AggregateId);
@@ -169,12 +175,12 @@
         {
             // Arrange
             var random = new Random();
-            var processManager = new FooProcessManager
+            var processManager = new FakeProcessManager
             {
                 AggregateId = Guid.NewGuid(),
                 StatusValue = Guid.NewGuid().ToString()
             };
-            using (var db = new FooProcessManagerDbContext(_dbContextOptions))
+            using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
                 db.FooProcessManagers.Add(processManager);
                 await db.SaveChangesAsync(default);
@@ -182,8 +188,8 @@
 
             string statusValue = Guid.NewGuid().ToString();
 
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             using (sut)
@@ -197,9 +203,9 @@
             }
 
             // Assert
-            using (var db = new FooProcessManagerDbContext(_dbContextOptions))
+            using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
-                FooProcessManager actual = await
+                FakeProcessManager actual = await
                     db.FooProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
                 actual.StatusValue.Should().Be(statusValue);
             }
@@ -210,12 +216,12 @@
         {
             // Arrange
             var cancellationToken = CancellationToken.None;
-            var context = new FooProcessManagerDbContext(_dbContextOptions);
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
+            var context = new FakeProcessManagerDbContext(_dbContextOptions);
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
                 context,
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
             var correlationId = default(Guid?);
 
             // Act
@@ -230,19 +236,19 @@
         {
             // Arrange
             var random = new Random();
-            IEnumerable<FooCommand> commands = new[]
+            IEnumerable<FakeCommand> commands = new[]
             {
-                new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
             };
-            var processManager = new FooProcessManager(commands);
+            var processManager = new FakeProcessManager(commands);
             var correlationId = Guid.NewGuid();
 
             var serializer = new JsonMessageSerializer();
 
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 serializer,
                 Mock.Of<ICommandPublisher>());
 
@@ -253,7 +259,7 @@
             }
 
             // Assert
-            using (var db = new FooProcessManagerDbContext(_dbContextOptions))
+            using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
                 IQueryable<PendingCommand> query =
                     from c in db.PendingCommands
@@ -265,7 +271,7 @@
                 pendingCommands.Should().HaveCount(commands.Count());
                 foreach (var t in commands.Zip(pendingCommands, (expected, actual) => new { expected, actual }))
                 {
-                    t.actual.ProcessManagerType.Should().Be(typeof(FooProcessManager).FullName);
+                    t.actual.ProcessManagerType.Should().Be(typeof(FakeProcessManager).FullName);
                     t.actual.ProcessManagerId.Should().Be(processManager.Id);
                     t.actual.MessageId.Should().NotBeEmpty();
                     t.actual.CorrelationId.Should().Be(correlationId);
@@ -280,22 +286,22 @@
             // Arrange
             var random = new Random();
 #pragma warning disable SA1009 // Disable warning SA1009(Closing parenthesis must be spaced correctly) for generic types of tuples
-            IEnumerable<(FooCommand command, DateTimeOffset scheduledTime)> scheduledCommands = new[]
+            IEnumerable<(FakeCommand command, DateTimeOffset scheduledTime)> scheduledCommands = new[]
             {
-                (new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(random.Next())),
-                (new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(random.Next())),
-                (new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(random.Next()))
+                (new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(random.Next())),
+                (new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(random.Next())),
+                (new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(random.Next()))
             };
 #pragma warning restore SA1009 // Disable warning SA1009(Closing parenthesis must be spaced correctly) for generic types of tuples
-            var processManager = new FooProcessManager(
+            var processManager = new FakeProcessManager(
                 from e in scheduledCommands
                 select new ScheduledCommand(e.command, e.scheduledTime));
             var correlationId = Guid.NewGuid();
             var serializer = new JsonMessageSerializer();
 
             // Act
-            using (var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                                 new FooProcessManagerDbContext(_dbContextOptions),
+            using (var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                                 new FakeProcessManagerDbContext(_dbContextOptions),
                                  serializer,
                                  Mock.Of<ICommandPublisher>()))
             {
@@ -303,7 +309,7 @@
             }
 
             // Assert
-            using (var db = new FooProcessManagerDbContext(_dbContextOptions))
+            using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
                 IQueryable<PendingScheduledCommand> query =
                     from c in db.PendingScheduledCommands
@@ -317,7 +323,7 @@
                 foreach (var t in scheduledCommands.Zip(pendingScheduledCommands, (expected, actual) => (expected, actual)))
 #pragma warning restore SA1008 // Disable warning SA1008(Opening parenthesis must be spaced correctly) for generic types of tuples
                 {
-                    t.actual.ProcessManagerType.Should().Be(typeof(FooProcessManager).FullName);
+                    t.actual.ProcessManagerType.Should().Be(typeof(FakeProcessManager).FullName);
                     t.actual.ProcessManagerId.Should().Be(processManager.Id);
                     t.actual.MessageId.Should().NotBeEmpty();
                     t.actual.CorrelationId.Should().Be(correlationId);
@@ -331,10 +337,10 @@
         public async Task SaveProcessManagerAndPublishCommands_publishes_commands()
         {
             // Arrange
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
             var publisher = Mock.Of<ICommandPublisher>();
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 publisher);
 
@@ -350,9 +356,9 @@
         {
             // Arrange
             var publisher = Mock.Of<ICommandPublisher>();
-            var processManager = new FooProcessManager();
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(
+            var processManager = new FakeProcessManager();
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(
                     new DbContextOptionsBuilder()
                         .UseSqlServer($"Data Source=(localdb)\\mssqllocaldb;Initial Catalog=nonexistent;")
                         .Options),
@@ -371,7 +377,7 @@
         public void given_command_publisher_fails_SaveProcessManagerAndPublishCommands_invokes_exception_handler()
         {
             // Arrange
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
             var cancellationToken = CancellationToken.None;
             Exception exception = new InvalidOperationException();
             var commandPublisher = Mock.Of<ICommandPublisher>();
@@ -381,8 +387,8 @@
 
             var commandPublisherExceptionHandler = Mock.Of<ICommandPublisherExceptionHandler>();
 
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 commandPublisher,
                 commandPublisherExceptionHandler);
@@ -397,7 +403,7 @@
                 x =>
                 x.Handle(It.Is<CommandPublisherExceptionContext>(
                     p =>
-                    p.ProcessManagerType == typeof(FooProcessManager) &&
+                    p.ProcessManagerType == typeof(FakeProcessManager) &&
                     p.ProcessManagerId == processManager.Id &&
                     p.Exception == exception)),
                 Times.Once());
@@ -407,7 +413,7 @@
         public void given_command_publisher_exception_handled_SaveProcessManagerAndPublishCommands_does_not_throw()
         {
             // Arrange
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
             var cancellationToken = CancellationToken.None;
             Exception exception = new InvalidOperationException();
             var commandPublisher = Mock.Of<ICommandPublisher>();
@@ -415,14 +421,14 @@
                 .Setup(x => x.FlushCommands(processManager.Id, cancellationToken))
                 .ThrowsAsync(exception);
 
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 commandPublisher,
                 new DelegatingCommandPublisherExceptionHandler(
                     context =>
                     context.Handled =
-                    context.ProcessManagerType == typeof(FooProcessManager) &&
+                    context.ProcessManagerType == typeof(FakeProcessManager) &&
                     context.ProcessManagerId == processManager.Id &&
                     context.Exception == exception));
 
@@ -438,15 +444,15 @@
         public void SaveProcessManagerAndPublishCommands_absorbs_command_publisher_exception_handler_exception()
         {
             // Arrange
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
             var cancellationToken = CancellationToken.None;
             var commandPublisher = Mock.Of<ICommandPublisher>();
             Mock.Get(commandPublisher)
                 .Setup(x => x.FlushCommands(processManager.Id, cancellationToken))
                 .ThrowsAsync(new InvalidOperationException());
 
-            var sut = new SqlProcessManagerDataContext<FooProcessManager>(
-                new FooProcessManagerDbContext(_dbContextOptions),
+            var sut = new SqlProcessManagerDataContext<FakeProcessManager>(
+                new FakeProcessManagerDbContext(_dbContextOptions),
                 new JsonMessageSerializer(),
                 commandPublisher,
                 new DelegatingCommandPublisherExceptionHandler(
@@ -464,15 +470,15 @@
             action.ShouldNotThrow();
         }
 
-        public class FooProcessManager : ProcessManager
+        public class FakeProcessManager : ProcessManager
         {
             private string _validationError = null;
 
-            public FooProcessManager()
+            public FakeProcessManager()
             {
             }
 
-            public FooProcessManager(IEnumerable<object> commands)
+            public FakeProcessManager(IEnumerable<object> commands)
             {
                 foreach (object command in commands)
                 {
@@ -480,7 +486,7 @@
                 }
             }
 
-            public FooProcessManager(IEnumerable<ScheduledCommand> scheduledCommands)
+            public FakeProcessManager(IEnumerable<ScheduledCommand> scheduledCommands)
             {
                 foreach (ScheduledCommand scheduledCommand in scheduledCommands)
                 {
@@ -493,23 +499,23 @@
             public string StatusValue { get; set; }
         }
 
-        public class FooCommand
+        public class FakeCommand
         {
             public int Int32Value { get; set; }
 
             public string StringValue { get; set; }
         }
 
-        public class FooProcessManagerDbContext : ProcessManagerDbContext
+        public class FakeProcessManagerDbContext : ProcessManagerDbContext
         {
             private int _commitCount = 0;
 
-            public FooProcessManagerDbContext(DbContextOptions options)
+            public FakeProcessManagerDbContext(DbContextOptions options)
                 : base(options)
             {
             }
 
-            public DbSet<FooProcessManager> FooProcessManagers { get; set; }
+            public DbSet<FakeProcessManager> FooProcessManagers { get; set; }
 
             public int CommitCount => _commitCount;
 
