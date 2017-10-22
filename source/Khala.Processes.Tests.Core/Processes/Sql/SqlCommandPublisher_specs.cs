@@ -7,6 +7,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
+    using Khala.FakeDomain;
     using Khala.Messaging;
     using Khala.TransientFaultHandling;
     using Microsoft.EntityFrameworkCore;
@@ -36,20 +37,20 @@
             // Arrange
             var serializer = new JsonMessageSerializer();
 
-            var processManager = new FooProcessManager();
-            var noiseProcessManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
+            var noiseProcessManager = new FakeProcessManager();
 
             const int noiseCommandCount = 3;
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
                 var commands = new List<PendingCommand>(
-                    from command in Enumerable.Repeat(new FooCommand(), 3)
+                    from command in Enumerable.Repeat(new FakeCommand(), 3)
                     let envelope = new Envelope(command)
                     select PendingCommand.FromEnvelope(processManager, envelope, serializer));
 
                 commands.AddRange(
-                    from command in Enumerable.Repeat(new FooCommand(), noiseCommandCount)
+                    from command in Enumerable.Repeat(new FakeCommand(), noiseCommandCount)
                     let envelope = new Envelope(command)
                     select PendingCommand.FromEnvelope(noiseProcessManager, envelope, serializer));
 
@@ -85,17 +86,17 @@
             // Arrange
             var serializer = new JsonMessageSerializer();
 
-            var processManager = new FooProcessManager();
-            var noiseProcessManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
+            var noiseProcessManager = new FakeProcessManager();
 
             var random = new Random();
 
             var envelopes = new List<Envelope>(
                 from command in new[]
                 {
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
                 }
                 select new Envelope(Guid.NewGuid(), Guid.NewGuid(), command));
 
@@ -135,14 +136,14 @@
         {
             // Arrange
             var serializer = new JsonMessageSerializer();
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
             var random = new Random();
             var commands = new List<PendingCommand>(
                 from command in new[]
                 {
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
                 }
                 let envelope = new Envelope(command)
                 select PendingCommand.FromEnvelope(processManager, envelope, serializer));
@@ -218,16 +219,16 @@
                 messageBus,
                 Mock.Of<IScheduledMessageBus>());
 
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
                 db.PendingCommands.AddRange(
                     new[]
                     {
-                        new FooCommand(),
-                        new FooCommand(),
-                        new FooCommand()
+                        new FakeCommand(),
+                        new FakeCommand(),
+                        new FakeCommand()
                     }
                     .Select(c => new Envelope(c))
                     .Select(e => PendingCommand.FromEnvelope(processManager, e, serializer)));
@@ -264,20 +265,20 @@
             // Arrange
             var serializer = new JsonMessageSerializer();
 
-            var processManager = new FooProcessManager();
-            var noiseProcessManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
+            var noiseProcessManager = new FakeProcessManager();
 
             const int noiseCommandCount = 3;
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
                 var commands = new List<PendingScheduledCommand>(
-                    from command in Enumerable.Repeat(new FooCommand(), 3)
+                    from command in Enumerable.Repeat(new FakeCommand(), 3)
                     let scheduledEnvelope = new ScheduledEnvelope(new Envelope(command), DateTimeOffset.Now)
                     select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, serializer));
 
                 commands.AddRange(
-                    from command in Enumerable.Repeat(new FooCommand(), noiseCommandCount)
+                    from command in Enumerable.Repeat(new FakeCommand(), noiseCommandCount)
                     let scheduledEnvelope = new ScheduledEnvelope(new Envelope(command), DateTimeOffset.Now)
                     select PendingScheduledCommand.FromScheduledEnvelope(noiseProcessManager, scheduledEnvelope, serializer));
 
@@ -312,17 +313,17 @@
         {
             // Arrange
             var serializer = new JsonMessageSerializer();
-            var processManager = new FooProcessManager();
-            var noiseProcessManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
+            var noiseProcessManager = new FakeProcessManager();
 
             var random = new Random();
 
             var scheduledEnvelopes = new List<ScheduledEnvelope>(
                 from command in new[]
                 {
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
                 }
                 let envelope = new Envelope(Guid.NewGuid(), Guid.NewGuid(), command)
                 select new ScheduledEnvelope(envelope, DateTimeOffset.Now.AddTicks(random.Next())));
@@ -365,14 +366,14 @@
         {
             // Arrange
             var serializer = new JsonMessageSerializer();
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
             var random = new Random();
             var scheduledCommands = new List<PendingScheduledCommand>(
                 from command in new[]
                 {
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FooCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
                 }
                 let envelope = new Envelope(command)
                 let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTimeOffset.Now.AddTicks(random.Next()))
@@ -427,16 +428,16 @@
                 Mock.Of<IMessageBus>(),
                 scheduledMessageBus);
 
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
                 db.PendingScheduledCommands.AddRange(
                     from command in new[]
                     {
-                        new FooCommand(),
-                        new FooCommand(),
-                        new FooCommand()
+                        new FakeCommand(),
+                        new FakeCommand(),
+                        new FakeCommand()
                     }
                     let envelope = new Envelope(command)
                     let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTimeOffset.Now)
@@ -478,8 +479,8 @@
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    var processManager = new FooProcessManager();
-                    db.PendingCommands.AddRange(from command in Enumerable.Repeat(new FooCommand(), 3)
+                    var processManager = new FakeProcessManager();
+                    db.PendingCommands.AddRange(from command in Enumerable.Repeat(new FakeCommand(), 3)
                                                 let envelope = new Envelope(command)
                                                 select PendingCommand.FromEnvelope(processManager, envelope, serializer));
                 }
@@ -518,8 +519,8 @@
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    var processManager = new FooProcessManager();
-                    db.PendingScheduledCommands.AddRange(from command in Enumerable.Repeat(new FooCommand(), 3)
+                    var processManager = new FakeProcessManager();
+                    db.PendingScheduledCommands.AddRange(from command in Enumerable.Repeat(new FakeCommand(), 3)
                                                          let envelope = new Envelope(command)
                                                          let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTimeOffset.Now)
                                                          select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, serializer));
@@ -547,27 +548,6 @@
                     new ConstantRetryIntervalStrategy(TimeSpan.FromSeconds(1.0)));
                 (await retryPolicy.Run(db.PendingScheduledCommands.AnyAsync, CancellationToken.None)).Should().BeFalse();
             }
-        }
-
-        public class FooProcessManager : ProcessManager
-        {
-        }
-
-        public class FooCommand
-        {
-            public int Int32Value { get; set; }
-
-            public string StringValue { get; set; }
-        }
-
-        public class FooProcessManagerDbContext : ProcessManagerDbContext
-        {
-            public FooProcessManagerDbContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public DbSet<FooProcessManager> FooProcessManagers { get; set; }
         }
 
         private class MessageBus : IMessageBus

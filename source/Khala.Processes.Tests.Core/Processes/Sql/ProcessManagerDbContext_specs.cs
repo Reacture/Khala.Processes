@@ -1,6 +1,7 @@
 ﻿namespace Khala.Processes.Sql
 {
     using FluentAssertions;
+    using Khala.FakeDomain;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata;
     using Xunit;
@@ -77,16 +78,16 @@
         [Fact]
         public void process_manager_entity_has_primary_key()
         {
-            var context = new FooProcessManagerDbContext(_dbContextOptions);
-            IEntityType sut = context.Model.FindEntityType(typeof(FooProcessManager));
+            var context = new FakeProcessManagerDbContext(_dbContextOptions);
+            IEntityType sut = context.Model.FindEntityType(typeof(FakeProcessManager));
             sut.FindPrimaryKey().Properties.Should().ContainSingle(p => p.Name == "SequenceId");
         }
 
         [Fact]
         public void process_manager_entity_has_Id_property()
         {
-            var context = new FooProcessManagerDbContext(_dbContextOptions);
-            IEntityType sut = context.Model.FindEntityType(typeof(FooProcessManager));
+            var context = new FakeProcessManagerDbContext(_dbContextOptions);
+            IEntityType sut = context.Model.FindEntityType(typeof(FakeProcessManager));
             IProperty actual = sut.FindProperty("Id");
             actual.Should().NotBeNull();
         }
@@ -94,24 +95,10 @@
         [Fact]
         public void process_manager_entity_has_index_for_Id()
         {
-            var context = new FooProcessManagerDbContext(_dbContextOptions);
-            IEntityType sut = context.Model.FindEntityType(typeof(FooProcessManager));
+            var context = new FakeProcessManagerDbContext(_dbContextOptions);
+            IEntityType sut = context.Model.FindEntityType(typeof(FakeProcessManager));
             IProperty property = sut.FindProperty("Id");
             property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique);
-        }
-
-        public class FooProcessManager : ProcessManager
-        {
-        }
-
-        public class FooProcessManagerDbContext : ProcessManagerDbContext
-        {
-            public FooProcessManagerDbContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public DbSet<FooProcessManager> FooProcessManagers { get; set; }
         }
     }
 }

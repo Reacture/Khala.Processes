@@ -8,6 +8,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
+    using Khala.FakeDomain;
     using Khala.Messaging;
     using Microsoft.EntityFrameworkCore;
     using Moq;
@@ -15,13 +16,21 @@
 
     public class SqlProcessManagerDataContext_specs
     {
-        private readonly DbContextOptions<ProcessManagerDbContext> _dbContextOptions;
+        private static readonly DbContextOptions<ProcessManagerDbContext> _dbContextOptions;
 
-        public SqlProcessManagerDataContext_specs()
+        static SqlProcessManagerDataContext_specs()
         {
             _dbContextOptions = new DbContextOptionsBuilder<ProcessManagerDbContext>()
-                .UseInMemoryDatabase(nameof(ProcessManagerDbContext_specs))
+                .UseSqlServer($@"Server=(localdb)\mssqllocaldb;Database={typeof(SqlProcessManagerDataContext_specs).FullName}.Core;Trusted_Connection=True;")
                 .Options;
+
+            using (var context = new FakeProcessManagerDbContext(_dbContextOptions))
+            {
+                context.Database.Migrate();
+                context.Database.ExecuteSqlCommand("DELETE FROM FakeProcessManagers");
+                context.Database.ExecuteSqlCommand("DELETE FROM PendingCommands");
+                context.Database.ExecuteSqlCommand("DELETE FROM PendingScheduledCommands");
+            }
         }
 
         [Fact]
@@ -94,10 +103,10 @@
             {
                 var random = new Random();
                 foreach (FakeProcessManager processManager in from p in processManagers
-                                                             orderby random.Next()
-                                                             select p)
+                                                              orderby random.Next()
+                                                              select p)
                 {
-                    db.FooProcessManagers.Add(processManager);
+                    db.FakeProcessManagers.Add(processManager);
                 }
 
                 await db.SaveChangesAsync(default);
@@ -132,7 +141,7 @@
                 publisher);
             using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
-                db.FooProcessManagers.Add(processManager);
+                db.FakeProcessManagers.Add(processManager);
                 await db.SaveChangesAsync(default);
             }
 
@@ -164,7 +173,7 @@
             using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
                 FakeProcessManager actual = await
-                    db.FooProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
+                    db.FakeProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
                 actual.Should().NotBeNull();
                 actual.AggregateId.Should().Be(processManager.AggregateId);
             }
@@ -182,7 +191,7 @@
             };
             using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
-                db.FooProcessManagers.Add(processManager);
+                db.FakeProcessManagers.Add(processManager);
                 await db.SaveChangesAsync(default);
             }
 
@@ -206,7 +215,7 @@
             using (var db = new FakeProcessManagerDbContext(_dbContextOptions))
             {
                 FakeProcessManager actual = await
-                    db.FooProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
+                    db.FakeProcessManagers.SingleOrDefaultAsync(x => x.Id == processManager.Id);
                 actual.StatusValue.Should().Be(statusValue);
             }
         }
@@ -468,77 +477,6 @@
 
             // Assert
             action.ShouldNotThrow();
-        }
-
-        public class FakeProcessManager : ProcessManager
-        {
-            private string _validationError = null;
-
-            public FakeProcessManager()
-            {
-            }
-
-            public FakeProcessManager(IEnumerable<object> commands)
-            {
-                foreach (object command in commands)
-                {
-                    AddCommand(command);
-                }
-            }
-
-            public FakeProcessManager(IEnumerable<ScheduledCommand> scheduledCommands)
-            {
-                foreach (ScheduledCommand scheduledCommand in scheduledCommands)
-                {
-                    AddScheduledCommand(scheduledCommand);
-                }
-            }
-
-            public Guid AggregateId { get; set; }
-
-            public string StatusValue { get; set; }
-        }
-
-        public class FakeCommand
-        {
-            public int Int32Value { get; set; }
-
-            public string StringValue { get; set; }
-        }
-
-        public class FakeProcessManagerDbContext : ProcessManagerDbContext
-        {
-            private int _commitCount = 0;
-
-            public FakeProcessManagerDbContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public DbSet<FakeProcessManager> FooProcessManagers { get; set; }
-
-            public int CommitCount => _commitCount;
-
-            public IDisposable DisposableResource { get; set; }
-
-            public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
-            {
-                try
-                {
-                    return await base.SaveChangesAsync(cancellationToken);
-                }
-                finally
-                {
-                    Interlocked.Increment(ref _commitCount);
-                }
-            }
-
-            public override void Dispose()
-            {
-                base.Dispose();
-
-                DisposableResource?.Dispose();
-            }
         }
     }
 }

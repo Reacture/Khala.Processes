@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel.DataAnnotations;
     using FluentAssertions;
+    using Khala.FakeDomain;
     using Khala.Messaging;
     using Xunit;
 
@@ -94,10 +95,10 @@
         {
             // Arrange
             var random = new Random();
-            var processManager = new FooProcessManager();
+            var processManager = new FakeProcessManager();
             var messageId = Guid.NewGuid();
             var correlationId = Guid.NewGuid();
-            var message = new FooCommand
+            var message = new FakeCommand
             {
                 Int32Value = random.Next(),
                 StringValue = Guid.NewGuid().ToString()
@@ -112,23 +113,12 @@
             var actual = PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, serializer);
 
             // Assert
-            actual.ProcessManagerType.Should().Be(typeof(FooProcessManager).FullName);
+            actual.ProcessManagerType.Should().Be(typeof(FakeProcessManager).FullName);
             actual.ProcessManagerId.Should().Be(processManager.Id);
             actual.MessageId.Should().Be(messageId);
             actual.CorrelationId.Should().Be(correlationId);
             actual.CommandJson.Should().Be(serializer.Serialize(message));
             actual.ScheduledTime.Should().Be(scheduledEnvelope.ScheduledTime);
-        }
-
-        public class FooProcessManager : ProcessManager
-        {
-        }
-
-        public class FooCommand
-        {
-            public int Int32Value { get; set; }
-
-            public string StringValue { get; set; }
         }
     }
 }
