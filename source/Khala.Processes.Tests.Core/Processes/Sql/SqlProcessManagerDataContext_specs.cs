@@ -13,11 +13,11 @@
     using Moq;
     using Xunit;
 
-    public class SqlProcessManagerDataContextT_specs
+    public class SqlProcessManagerDataContext_specs
     {
         private readonly DbContextOptions<ProcessManagerDbContext> _dbContextOptions;
 
-        public SqlProcessManagerDataContextT_specs()
+        public SqlProcessManagerDataContext_specs()
         {
             _dbContextOptions = new DbContextOptionsBuilder<ProcessManagerDbContext>()
                 .UseInMemoryDatabase(nameof(ProcessManagerDbContext_specs))

@@ -18,7 +18,7 @@
     using Ploeh.AutoFixture.Idioms;
 
     [TestClass]
-    public class SqlProcessManagerDataContextT_specs
+    public class SqlProcessManagerDataContext_specs
     {
         [TestMethod]
         public void sut_implements_IDisposable()

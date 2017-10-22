@@ -118,7 +118,7 @@
     <Compile Include="Processes\Sql\PendingScheduledCommand_specs.cs" />
     <Compile Include="Processes\Sql\ProcessManager_specs.cs" />
     <Compile Include="Processes\Sql\SqlCommandPublisher_specs.cs" />
-    <Compile Include="Processes\Sql\SqlProcessManagerDataContextT_specs.cs" />
+    <Compile Include="Processes\Sql\SqlProcessManagerDataContext_specs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
