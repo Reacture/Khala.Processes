@@ -34,7 +34,7 @@
             _scheduledMessageBus = scheduledMessageBus ?? throw new ArgumentNullException(nameof(scheduledMessageBus));
         }
 
-        public virtual Task FlushCommands(Guid processManagerId, CancellationToken cancellationToken)
+        public Task FlushCommands(Guid processManagerId, CancellationToken cancellationToken)
         {
             if (processManagerId == Guid.Empty)
             {
