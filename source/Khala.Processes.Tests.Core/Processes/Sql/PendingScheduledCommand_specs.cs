@@ -101,7 +101,7 @@
             var message = new FakeCommand
             {
                 Int32Value = random.Next(),
-                StringValue = Guid.NewGuid().ToString()
+                StringValue = Guid.NewGuid().ToString(),
             };
             var scheduledEnvelope =
                 new ScheduledEnvelope(

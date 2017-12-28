@@ -26,11 +26,11 @@
         [TestMethod]
         public async Task Handle_relays_to_asynchronous_action_correctly()
         {
-            var handler = Mock.Of<ICommandPublisherExceptionHandler>();
+            ICommandPublisherExceptionHandler handler = Mock.Of<ICommandPublisherExceptionHandler>();
             Func<CommandPublisherExceptionContext, Task> action = handler.Handle;
             var sut = new DelegatingCommandPublisherExceptionHandler(action);
             var fixture = new Fixture();
-            var context = fixture.Create<CommandPublisherExceptionContext>();
+            CommandPublisherExceptionContext context = fixture.Create<CommandPublisherExceptionContext>();
 
             await sut.Handle(context);
 
@@ -40,11 +40,11 @@
         [TestMethod]
         public async Task Handle_relays_to_synchronous_action_correctly()
         {
-            var functionProvider = Mock.Of<IFunctionProvider>();
+            IFunctionProvider functionProvider = Mock.Of<IFunctionProvider>();
             Action<CommandPublisherExceptionContext> action = functionProvider.Action;
             var sut = new DelegatingCommandPublisherExceptionHandler(action);
             var fixture = new Fixture();
-            var context = fixture.Create<CommandPublisherExceptionContext>();
+            CommandPublisherExceptionContext context = fixture.Create<CommandPublisherExceptionContext>();
 
             await sut.Handle(context);
 

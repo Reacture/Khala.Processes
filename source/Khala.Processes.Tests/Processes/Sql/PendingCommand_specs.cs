@@ -145,7 +145,7 @@
         [TestMethod]
         public void sut_has_guard_clauses()
         {
-            var builder = new Fixture().Customize(new AutoMoqCustomization());
+            IFixture builder = new Fixture().Customize(new AutoMoqCustomization());
             new GuardClauseAssertion(builder).Verify(typeof(PendingCommand));
         }
 
@@ -208,7 +208,7 @@
         public void FromEnvelope_sets_CommandJson_correctly()
         {
             var fixture = new Fixture();
-            var command = fixture.Create<FooCommand>();
+            FooCommand command = fixture.Create<FooCommand>();
             var envelope = new Envelope(command);
             var processManager = new FooProcessManager();
             var serializer = new JsonMessageSerializer();

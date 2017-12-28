@@ -16,7 +16,7 @@
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AggregateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StatusValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    StatusValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -33,7 +33,7 @@
                     CorrelationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProcessManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProcessManagerType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ProcessManagerType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -51,7 +51,7 @@
                     MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProcessManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProcessManagerType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ScheduledTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                    ScheduledTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                 },
                 constraints: table =>
                 {

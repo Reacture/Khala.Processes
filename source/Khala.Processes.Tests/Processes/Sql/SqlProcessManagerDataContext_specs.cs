@@ -29,7 +29,7 @@
         [TestMethod]
         public void Dispose_disposes_db_context()
         {
-            var disposable = Mock.Of<IDisposable>();
+            IDisposable disposable = Mock.Of<IDisposable>();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new FooProcessManagerDbContext { DisposableResource = disposable },
                 new JsonMessageSerializer(),
@@ -43,7 +43,7 @@
         [TestMethod]
         public void sut_has_guard_clauses()
         {
-            var builder = new Fixture { OmitAutoProperties = true }.Customize(new AutoMoqCustomization());
+            IFixture builder = new Fixture { OmitAutoProperties = true }.Customize(new AutoMoqCustomization());
             new GuardClauseAssertion(builder).Verify(typeof(SqlProcessManagerDataContext<>));
         }
 
@@ -80,7 +80,7 @@
         public async Task FindProcessManager_returns_process_manager_that_satisfies_predicate()
         {
             // Arrange
-            List<FooProcessManager> processManagers = Enumerable
+            var processManagers = Enumerable
                 .Repeat<Func<FooProcessManager>>(() => new FooProcessManager { AggregateId = Guid.NewGuid() }, 10)
                 .Select(f => f.Invoke())
                 .ToList();
@@ -121,7 +121,7 @@
         public async Task FindProcessManager_flushes_pending_commands()
         {
             // Arrange
-            var publisher = Mock.Of<ICommandPublisher>();
+            ICommandPublisher publisher = Mock.Of<ICommandPublisher>();
             var processManager = new FooProcessManager();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new FooProcessManagerDbContext(),
@@ -152,9 +152,8 @@
             using (sut)
             {
                 // Act
-                var cancellationToken = CancellationToken.None;
                 var correlationId = default(Guid?);
-                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, cancellationToken);
+                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
             }
 
             // Assert
@@ -172,7 +171,7 @@
         {
             // Arrange
             var fixture = new Fixture();
-            var processManager = fixture.Create<FooProcessManager>();
+            FooProcessManager processManager = fixture.Create<FooProcessManager>();
             using (var db = new FooProcessManagerDbContext())
             {
                 db.FooProcessManagers.Add(processManager);
@@ -187,7 +186,7 @@
                 Mock.Of<ICommandPublisher>());
             using (sut)
             {
-                var cancellationToken = CancellationToken.None;
+                CancellationToken cancellationToken = CancellationToken.None;
                 processManager = await sut.FindProcessManager(x => x.Id == processManager.Id, cancellationToken);
                 processManager.StatusValue = statusValue;
                 var correlationId = default(Guid?);
@@ -209,7 +208,6 @@
         public async Task SaveProcessManagerAndPublishCommands_commits_once()
         {
             // Arrange
-            var cancellationToken = CancellationToken.None;
             var context = new FooProcessManagerDbContext();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 context,
@@ -219,7 +217,7 @@
             var correlationId = default(Guid?);
 
             // Act
-            await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, cancellationToken);
+            await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
 
             // Assert
             context.CommitCount.Should().Be(1);
@@ -274,9 +272,7 @@
         {
             // Arrange
             var fixture = new Fixture();
-#pragma warning disable SA1009 // Disable warning SA1009(Closing parenthesis must be spaced correctly) for generic types of tuples
             IEnumerable<(FooCommand command, DateTimeOffset scheduledTime)> scheduledCommands = fixture.CreateMany<(FooCommand, DateTimeOffset)>();
-#pragma warning restore SA1009 // Disable warning SA1009(Closing parenthesis must be spaced correctly) for generic types of tuples
             var processManager = new FooProcessManager(
                 from e in scheduledCommands
                 select new ScheduledCommand(e.command, e.scheduledTime));
@@ -301,11 +297,10 @@
                     orderby c.Id
                     select c;
 
-                List<PendingScheduledCommand> pendingScheduledCommands = query.ToList();
+                var pendingScheduledCommands = query.ToList();
                 pendingScheduledCommands.Should().HaveCount(scheduledCommands.Count());
-#pragma warning disable SA1008 // Disable warning SA1008(Opening parenthesis must be spaced correctly) for generic types of tuples
-                foreach (var t in scheduledCommands.Zip(pendingScheduledCommands, (expected, actual) => (expected, actual)))
-#pragma warning restore SA1008 // Disable warning SA1008(Opening parenthesis must be spaced correctly) for generic types of tuples
+                foreach (((FooCommand command, DateTimeOffset scheduledTime) expected, PendingScheduledCommand actual) t in
+                    scheduledCommands.Zip(pendingScheduledCommands, (expected, actual) => (expected, actual)))
                 {
                     t.actual.ProcessManagerType.Should().Be(typeof(FooProcessManager).FullName);
                     t.actual.ProcessManagerId.Should().Be(processManager.Id);
@@ -322,8 +317,8 @@
         {
             // Arrange
             var fixture = new Fixture();
-            var processManager = fixture.Create<FooProcessManager>();
-            var publisher = Mock.Of<ICommandPublisher>();
+            FooProcessManager processManager = fixture.Create<FooProcessManager>();
+            ICommandPublisher publisher = Mock.Of<ICommandPublisher>();
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new FooProcessManagerDbContext(),
                 new JsonMessageSerializer(),
@@ -341,8 +336,8 @@
         {
             // Arrange
             var fixture = new Fixture();
-            var publisher = Mock.Of<ICommandPublisher>();
-            var processManager = fixture.Create<FooProcessManager>();
+            ICommandPublisher publisher = Mock.Of<ICommandPublisher>();
+            FooProcessManager processManager = fixture.Create<FooProcessManager>();
             processManager.SetValidationError("invalid process manager state");
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new FooProcessManagerDbContext(),
@@ -362,14 +357,14 @@
         {
             // Arrange
             var processManager = new FooProcessManager();
-            var cancellationToken = CancellationToken.None;
+            CancellationToken cancellationToken = CancellationToken.None;
             Exception exception = new InvalidOperationException();
-            var commandPublisher = Mock.Of<ICommandPublisher>();
+            ICommandPublisher commandPublisher = Mock.Of<ICommandPublisher>();
             Mock.Get(commandPublisher)
                 .Setup(x => x.FlushCommands(processManager.Id, cancellationToken))
                 .ThrowsAsync(exception);
 
-            var commandPublisherExceptionHandler = Mock.Of<ICommandPublisherExceptionHandler>();
+            ICommandPublisherExceptionHandler commandPublisherExceptionHandler = Mock.Of<ICommandPublisherExceptionHandler>();
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new FooProcessManagerDbContext(),
@@ -398,9 +393,9 @@
         {
             // Arrange
             var processManager = new FooProcessManager();
-            var cancellationToken = CancellationToken.None;
+            CancellationToken cancellationToken = CancellationToken.None;
             Exception exception = new InvalidOperationException();
-            var commandPublisher = Mock.Of<ICommandPublisher>();
+            ICommandPublisher commandPublisher = Mock.Of<ICommandPublisher>();
             Mock.Get(commandPublisher)
                 .Setup(x => x.FlushCommands(processManager.Id, cancellationToken))
                 .ThrowsAsync(exception);
@@ -429,8 +424,8 @@
         {
             // Arrange
             var processManager = new FooProcessManager();
-            var cancellationToken = CancellationToken.None;
-            var commandPublisher = Mock.Of<ICommandPublisher>();
+            CancellationToken cancellationToken = CancellationToken.None;
+            ICommandPublisher commandPublisher = Mock.Of<ICommandPublisher>();
             Mock.Get(commandPublisher)
                 .Setup(x => x.FlushCommands(processManager.Id, cancellationToken))
                 .ThrowsAsync(new InvalidOperationException());

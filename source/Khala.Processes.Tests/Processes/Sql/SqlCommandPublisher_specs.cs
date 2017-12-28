@@ -22,7 +22,7 @@
         [TestMethod]
         public void sut_has_guard_clauses()
         {
-            var builder = new Fixture { OmitAutoProperties = true }.Customize(new AutoMoqCustomization());
+            IFixture builder = new Fixture { OmitAutoProperties = true }.Customize(new AutoMoqCustomization());
             new GuardClauseAssertion(builder).Verify(typeof(SqlCommandPublisher));
         }
 
@@ -140,7 +140,7 @@
                 await db.SaveChangesAsync();
             }
 
-            var messageBus = Mock.Of<IMessageBus>();
+            IMessageBus messageBus = Mock.Of<IMessageBus>();
             var exception = new InvalidOperationException();
             Mock.Get(messageBus)
                 .Setup(x => x.Send(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()))
@@ -171,7 +171,7 @@
         public async Task given_no_command_FlushCommands_does_not_try_to_send()
         {
             // Arrange
-            var messageBus = Mock.Of<IMessageBus>();
+            IMessageBus messageBus = Mock.Of<IMessageBus>();
 
             var sut = new SqlCommandPublisher(
                 () => new FooProcessManagerDbContext(),
@@ -356,7 +356,7 @@
                                       orderby c.GetHashCode()
                                       select c.MessageId).First();
 
-            var scheduledMessageBus = Mock.Of<IScheduledMessageBus>();
+            IScheduledMessageBus scheduledMessageBus = Mock.Of<IScheduledMessageBus>();
             var exception = new InvalidOperationException();
             Mock.Get(scheduledMessageBus)
                 .Setup(x => x.Send(It.Is<ScheduledEnvelope>(p => p.Envelope.MessageId == poisonedMessageId), CancellationToken.None))

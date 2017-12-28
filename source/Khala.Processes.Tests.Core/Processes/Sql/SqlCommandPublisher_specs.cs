@@ -96,7 +96,7 @@
                 {
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                 }
                 select new Envelope(Guid.NewGuid(), Guid.NewGuid(), command));
 
@@ -109,7 +109,7 @@
                                             {
                                                 new Envelope(new object()),
                                                 new Envelope(new object()),
-                                                new Envelope(new object())
+                                                new Envelope(new object()),
                                             }
                                             select PendingCommand.FromEnvelope(noiseProcessManager, envelope, serializer));
 
@@ -143,7 +143,7 @@
                 {
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                 }
                 let envelope = new Envelope(command)
                 select PendingCommand.FromEnvelope(processManager, envelope, serializer));
@@ -154,7 +154,7 @@
                 await db.SaveChangesAsync();
             }
 
-            var messageBus = Mock.Of<IMessageBus>();
+            IMessageBus messageBus = Mock.Of<IMessageBus>();
             var exception = new InvalidOperationException();
             Mock.Get(messageBus)
                 .Setup(x => x.Send(It.IsAny<IEnumerable<Envelope>>(), It.IsAny<CancellationToken>()))
@@ -185,7 +185,7 @@
         public async Task given_no_command_FlushCommands_does_not_try_to_send()
         {
             // Arrange
-            var messageBus = Mock.Of<IMessageBus>();
+            IMessageBus messageBus = Mock.Of<IMessageBus>();
 
             var sut = new SqlCommandPublisher(
                 () => new ProcessManagerDbContext(_dbContextOptions),
@@ -228,7 +228,7 @@
                     {
                         new FakeCommand(),
                         new FakeCommand(),
-                        new FakeCommand()
+                        new FakeCommand(),
                     }
                     .Select(c => new Envelope(c))
                     .Select(e => PendingCommand.FromEnvelope(processManager, e, serializer)));
@@ -323,7 +323,7 @@
                 {
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                 }
                 let envelope = new Envelope(Guid.NewGuid(), Guid.NewGuid(), command)
                 select new ScheduledEnvelope(envelope, DateTimeOffset.Now.AddTicks(random.Next())));
@@ -339,7 +339,7 @@
                     {
                         new ScheduledEnvelope(new Envelope(new object()), DateTimeOffset.Now),
                         new ScheduledEnvelope(new Envelope(new object()), DateTimeOffset.Now),
-                        new ScheduledEnvelope(new Envelope(new object()), DateTimeOffset.Now)
+                        new ScheduledEnvelope(new Envelope(new object()), DateTimeOffset.Now),
                     }
                     select PendingScheduledCommand.FromScheduledEnvelope(noiseProcessManager, scheduledEnvelope, serializer));
 
@@ -373,7 +373,7 @@
                 {
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() }
+                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                 }
                 let envelope = new Envelope(command)
                 let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTimeOffset.Now.AddTicks(random.Next()))
@@ -389,7 +389,7 @@
                                       orderby c.GetHashCode()
                                       select c.MessageId).First();
 
-            var scheduledMessageBus = Mock.Of<IScheduledMessageBus>();
+            IScheduledMessageBus scheduledMessageBus = Mock.Of<IScheduledMessageBus>();
             var exception = new InvalidOperationException();
             Mock.Get(scheduledMessageBus)
                 .Setup(x => x.Send(It.Is<ScheduledEnvelope>(p => p.Envelope.MessageId == poisonedMessageId), CancellationToken.None))
@@ -437,7 +437,7 @@
                     {
                         new FakeCommand(),
                         new FakeCommand(),
-                        new FakeCommand()
+                        new FakeCommand(),
                     }
                     let envelope = new Envelope(command)
                     let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTimeOffset.Now)

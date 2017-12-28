@@ -44,7 +44,7 @@
         [TestMethod]
         public void constructor_sets_ProcessManagerType_correctly()
         {
-            var processManagerType = typeof(ProcessManager);
+            Type processManagerType = typeof(ProcessManager);
 
             var sut = new CommandPublisherExceptionContext(
                 processManagerType,

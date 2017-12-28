@@ -72,7 +72,7 @@
         [TestMethod]
         public void sut_initializes_Id_correctly()
         {
-            List<Guid> ids = Enumerable
+            var ids = Enumerable
                 .Repeat<Func<ProcessManager>>(() => Mock.Of<ProcessManager>(), 100)
                 .Select(f => f.Invoke())
                 .Select(p => p.Id)
@@ -94,7 +94,7 @@
         [TestMethod]
         public void AddCommand_has_guard_clause()
         {
-            var builder = new Fixture().Customize(new AutoMoqCustomization());
+            IFixture builder = new Fixture().Customize(new AutoMoqCustomization());
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddCommand", BindingFlags.NonPublic | BindingFlags.Instance);
             new GuardClauseAssertion(builder).Verify(mut);
@@ -103,10 +103,10 @@
         [TestMethod]
         public void AddCommand_adds_envelope()
         {
-            var sut = Mock.Of<ProcessManager>();
+            ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            var command = new object();
+            object command = new object();
 
             mut.Invoke(sut, new[] { command });
 
@@ -117,11 +117,11 @@
         [TestMethod]
         public void AddCommand_appends_envelope()
         {
-            var sut = Mock.Of<ProcessManager>();
+            ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddCommand", BindingFlags.NonPublic | BindingFlags.Instance);
             mut.Invoke(sut, new[] { new object() });
-            var command = new object();
+            object command = new object();
 
             mut.Invoke(sut, new[] { command });
 
@@ -132,7 +132,7 @@
         [TestMethod]
         public void FlushPendingCommands_clears_pending_commands()
         {
-            var sut = Mock.Of<ProcessManager>();
+            ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddCommand", BindingFlags.NonPublic | BindingFlags.Instance);
             mut.Invoke(sut, new[] { new object() });
@@ -148,7 +148,7 @@
         [TestMethod]
         public void AddScheduledCommand_has_guard_clause()
         {
-            var builder = new Fixture().Customize(new AutoMoqCustomization());
+            IFixture builder = new Fixture().Customize(new AutoMoqCustomization());
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
             new GuardClauseAssertion(builder).Verify(mut);
@@ -157,7 +157,7 @@
         [TestMethod]
         public void AddScheduledCommand_adds_envelope()
         {
-            var sut = Mock.Of<ProcessManager>();
+            ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
             var scheduledCommand = new ScheduledCommand(new object(), DateTimeOffset.Now);
@@ -171,7 +171,7 @@
         [TestMethod]
         public void AddScheduledCommand_appends_envelope()
         {
-            var sut = Mock.Of<ProcessManager>();
+            ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
             var existingScheduledCommand = new ScheduledCommand(new object(), DateTimeOffset.Now);
@@ -187,7 +187,7 @@
         [TestMethod]
         public void FlushPendingScheduledCommands_clears_pending_scheduled_commands()
         {
-            var sut = Mock.Of<ProcessManager>();
+            ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
             var fixture = new Fixture();

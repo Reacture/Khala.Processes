@@ -31,8 +31,8 @@
         public void constructor_sets_properties_correctly()
         {
             var fixture = new Fixture();
-            var command = fixture.Create<object>();
-            var scheduledTime = fixture.Create<DateTimeOffset>();
+            object command = fixture.Create<object>();
+            DateTimeOffset scheduledTime = fixture.Create<DateTimeOffset>();
 
             var sut = new ScheduledCommand(command, scheduledTime);
 

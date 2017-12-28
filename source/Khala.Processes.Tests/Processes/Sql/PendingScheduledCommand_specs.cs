@@ -115,7 +115,7 @@
         [TestMethod]
         public void FromScheduledEnvelope_sets_ProcessManagerType_correctly()
         {
-            var scheduledEnvelope = new Fixture().Create<ScheduledEnvelope>();
+            ScheduledEnvelope scheduledEnvelope = new Fixture().Create<ScheduledEnvelope>();
 
             var actual = PendingScheduledCommand.FromScheduledEnvelope(
                 new FooProcessManager(),
@@ -141,7 +141,7 @@
         [TestMethod]
         public void FromScheduledEnvelope_sets_MessageId_correctly()
         {
-            var scheduledEnvelope = new Fixture().Create<ScheduledEnvelope>();
+            ScheduledEnvelope scheduledEnvelope = new Fixture().Create<ScheduledEnvelope>();
 
             var actual = PendingScheduledCommand.FromScheduledEnvelope(
                 new FooProcessManager(),
@@ -170,7 +170,7 @@
         [TestMethod]
         public void FromScheduledEnvelope_sets_CommandJson_correctly()
         {
-            var command = new Fixture().Create<FooCommand>();
+            FooCommand command = new Fixture().Create<FooCommand>();
             var scheduledEnvelope = new ScheduledEnvelope(
                 new Envelope(command),
                 DateTimeOffset.Now);
@@ -189,7 +189,7 @@
         [TestMethod]
         public void FromScheduledEnvelope_sets_ScheduledTime_correctly()
         {
-            var scheduledEnvelope = new Fixture().Create<ScheduledEnvelope>();
+            ScheduledEnvelope scheduledEnvelope = new Fixture().Create<ScheduledEnvelope>();
 
             var actual = PendingScheduledCommand.FromScheduledEnvelope(
                 new FooProcessManager(),
@@ -202,7 +202,7 @@
         [TestMethod]
         public void sut_has_guard_clauses()
         {
-            var builder = new Fixture().Customize(new AutoMoqCustomization());
+            IFixture builder = new Fixture().Customize(new AutoMoqCustomization());
             new GuardClauseAssertion(builder).Verify(typeof(PendingScheduledCommand));
         }
 

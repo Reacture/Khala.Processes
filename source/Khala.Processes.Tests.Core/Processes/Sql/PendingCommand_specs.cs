@@ -91,7 +91,7 @@
             var message = new FakeCommand
             {
                 Int32Value = new Random().Next(),
-                StringValue = Guid.NewGuid().ToString()
+                StringValue = Guid.NewGuid().ToString(),
             };
             var envelope = new Envelope(messageId, correlationId, message);
             var serializer = new JsonMessageSerializer();

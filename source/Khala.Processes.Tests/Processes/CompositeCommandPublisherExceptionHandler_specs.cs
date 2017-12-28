@@ -27,10 +27,10 @@
             {
                 Mock.Of<ICommandPublisherExceptionHandler>(),
                 Mock.Of<ICommandPublisherExceptionHandler>(),
-                Mock.Of<ICommandPublisherExceptionHandler>()
+                Mock.Of<ICommandPublisherExceptionHandler>(),
             };
             var fixture = new Fixture();
-            var context = fixture.Create<CommandPublisherExceptionContext>();
+            CommandPublisherExceptionContext context = fixture.Create<CommandPublisherExceptionContext>();
             var sut = new CompositeCommandPublisherExceptionHandler(handlers);
 
             // Act
@@ -46,7 +46,7 @@
         [TestMethod]
         public void sut_has_guard_clauses()
         {
-            var builder = new Fixture().Customize(new AutoMoqCustomization());
+            IFixture builder = new Fixture().Customize(new AutoMoqCustomization());
             new GuardClauseAssertion(builder).Verify(typeof(CompositeCommandPublisherExceptionHandler));
         }
 
@@ -55,9 +55,9 @@
         {
             ICommandPublisherExceptionHandler[] handlers = new[]
             {
-                default(ICommandPublisherExceptionHandler),
+                default,
                 Mock.Of<ICommandPublisherExceptionHandler>(),
-                Mock.Of<ICommandPublisherExceptionHandler>()
+                Mock.Of<ICommandPublisherExceptionHandler>(),
             };
             var random = new Random();
 
@@ -75,11 +75,11 @@
             {
                 Mock.Of<ICommandPublisherExceptionHandler>(),
                 Mock.Of<ICommandPublisherExceptionHandler>(),
-                Mock.Of<ICommandPublisherExceptionHandler>()
+                Mock.Of<ICommandPublisherExceptionHandler>(),
             };
 
             var fixture = new Fixture();
-            var context = fixture.Create<CommandPublisherExceptionContext>();
+            CommandPublisherExceptionContext context = fixture.Create<CommandPublisherExceptionContext>();
             Mock.Get(handlers[0])
                 .Setup(x => x.Handle(context))
                 .ThrowsAsync(new InvalidOperationException());
