@@ -105,7 +105,7 @@
             };
             var scheduledEnvelope =
                 new ScheduledEnvelope(
-                    new Envelope(messageId, correlationId, message),
+                    new Envelope(messageId, message, correlationId: correlationId),
                     new DateTimeOffset(DateTime.Now.AddTicks(random.Next())));
             var serializer = new JsonMessageSerializer();
 

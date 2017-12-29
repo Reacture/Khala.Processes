@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using AutoFixture;
     using FluentAssertions;
     using Khala.FakeDomain;
     using Khala.Messaging;
@@ -90,15 +91,16 @@
             var noiseProcessManager = new FakeProcessManager();
 
             var random = new Random();
+            var fixture = new Fixture();
 
             var envelopes = new List<Envelope>(
                 from command in new[]
                 {
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
                 }
-                select new Envelope(Guid.NewGuid(), Guid.NewGuid(), command));
+                select new Envelope(Guid.NewGuid(), command, null, Guid.NewGuid(), null));
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
@@ -317,15 +319,16 @@
             var noiseProcessManager = new FakeProcessManager();
 
             var random = new Random();
+            var fixture = new Fixture();
 
             var scheduledEnvelopes = new List<ScheduledEnvelope>(
                 from command in new[]
                 {
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
-                    new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
+                    new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
                 }
-                let envelope = new Envelope(Guid.NewGuid(), Guid.NewGuid(), command)
+                let envelope = new Envelope(Guid.NewGuid(), command, null, Guid.NewGuid(), null)
                 select new ScheduledEnvelope(envelope, DateTimeOffset.Now.AddTicks(random.Next())));
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))

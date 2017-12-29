@@ -94,8 +94,8 @@
         private Envelope RestoreEnvelope(PendingCommand command) =>
             new Envelope(
                 command.MessageId,
-                command.CorrelationId,
-                _serializer.Deserialize(command.CommandJson));
+                _serializer.Deserialize(command.CommandJson),
+                correlationId: command.CorrelationId);
 
         private static async Task RemoveCommands(
             ProcessManagerDbContext dbContext,
@@ -168,8 +168,8 @@
             new ScheduledEnvelope(
                 new Envelope(
                     scheduledCommand.MessageId,
-                    scheduledCommand.CorrelationId,
-                    _serializer.Deserialize(scheduledCommand.CommandJson)),
+                    _serializer.Deserialize(scheduledCommand.CommandJson),
+                    correlationId: scheduledCommand.CorrelationId),
                 scheduledCommand.ScheduledTime);
 
         private static async Task RemoveScheduledCommands(

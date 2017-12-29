@@ -94,7 +94,7 @@
 
             var envelopes = new List<Envelope>(
                 from command in fixture.CreateMany<FooCommand>()
-                select new Envelope(Guid.NewGuid(), Guid.NewGuid(), command));
+                select new Envelope(Guid.NewGuid(), command, null, Guid.NewGuid(), null));
 
             using (var db = new FooProcessManagerDbContext())
             {
@@ -302,7 +302,7 @@
 
             var scheduledEnvelopes = new List<ScheduledEnvelope>(
                 from command in fixture.CreateMany<FooCommand>()
-                let envelope = new Envelope(Guid.NewGuid(), Guid.NewGuid(), command)
+                let envelope = new Envelope(Guid.NewGuid(), command, null, Guid.NewGuid(), null)
                 select new ScheduledEnvelope(envelope, fixture.Create<DateTimeOffset>()));
 
             using (var db = new FooProcessManagerDbContext())

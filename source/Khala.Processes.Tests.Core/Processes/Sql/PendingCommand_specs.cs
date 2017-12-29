@@ -93,7 +93,7 @@
                 Int32Value = new Random().Next(),
                 StringValue = Guid.NewGuid().ToString(),
             };
-            var envelope = new Envelope(messageId, correlationId, message);
+            var envelope = new Envelope(messageId, message, correlationId: correlationId);
             var serializer = new JsonMessageSerializer();
 
             // Act

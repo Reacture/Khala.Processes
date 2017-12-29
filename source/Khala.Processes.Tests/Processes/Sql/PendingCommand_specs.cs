@@ -194,14 +194,13 @@
         public void FromEnvelope_sets_CorrelationId_correctly()
         {
             var fixture = new Fixture();
-            var correlationId = Guid.NewGuid();
-            var envelope = new Envelope(correlationId, fixture.Create<FooCommand>());
+            var envelope = new Envelope(Guid.NewGuid(), fixture.Create<FooCommand>(), correlationId: Guid.NewGuid());
             var processManager = new FooProcessManager();
             var serializer = new JsonMessageSerializer();
 
             var actual = PendingCommand.FromEnvelope(processManager, envelope, serializer);
 
-            actual.CorrelationId.Should().Be(correlationId);
+            actual.CorrelationId.Should().Be(envelope.CorrelationId);
         }
 
         [TestMethod]

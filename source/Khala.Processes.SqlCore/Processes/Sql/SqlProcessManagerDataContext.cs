@@ -132,7 +132,7 @@
         {
             IEnumerable<PendingCommand> pendingCommands = processManager
                 .FlushPendingCommands()
-                .Select(command => new Envelope(Guid.NewGuid(), correlationId, command))
+                .Select(command => new Envelope(Guid.NewGuid(), command, correlationId: correlationId))
                 .Select(envelope => PendingCommand.FromEnvelope(processManager, envelope, _serializer));
 
             _dbContext.PendingCommands.AddRange(pendingCommands);
@@ -146,8 +146,8 @@
                     new ScheduledEnvelope(
                         new Envelope(
                             Guid.NewGuid(),
-                            correlationId,
-                            scheduledCommand.Command),
+                            scheduledCommand.Command,
+                            correlationId: correlationId),
                         scheduledCommand.ScheduledTime)
                 select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, _serializer);
 
