@@ -9,13 +9,13 @@
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
+    using AutoFixture;
+    using AutoFixture.AutoMoq;
+    using AutoFixture.Idioms;
     using FluentAssertions;
     using Khala.Messaging;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using Ploeh.AutoFixture;
-    using Ploeh.AutoFixture.AutoMoq;
-    using Ploeh.AutoFixture.Idioms;
 
     [TestClass]
     public class SqlProcessManagerDataContext_specs
@@ -178,7 +178,7 @@
                 await db.SaveChangesAsync();
             }
 
-            string statusValue = fixture.Create(nameof(FooProcessManager.StatusValue));
+            string statusValue = fixture.Create<string>();
 
             var sut = new SqlProcessManagerDataContext<FooProcessManager>(
                 new FooProcessManagerDbContext(),

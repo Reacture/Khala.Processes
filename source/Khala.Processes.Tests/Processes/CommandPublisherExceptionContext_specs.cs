@@ -1,10 +1,10 @@
 ﻿namespace Khala.Processes
 {
     using System;
+    using AutoFixture;
+    using AutoFixture.Idioms;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Ploeh.AutoFixture;
-    using Ploeh.AutoFixture.Idioms;
 
     [TestClass]
     public class CommandPublisherExceptionContext_specs

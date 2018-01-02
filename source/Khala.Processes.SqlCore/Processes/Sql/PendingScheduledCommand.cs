@@ -59,7 +59,7 @@
                 MessageId = scheduledEnvelope.Envelope.MessageId,
                 CorrelationId = scheduledEnvelope.Envelope.CorrelationId,
                 CommandJson = serializer.Serialize(scheduledEnvelope.Envelope.Message),
-                ScheduledTime = scheduledEnvelope.ScheduledTime
+                ScheduledTime = scheduledEnvelope.ScheduledTime,
             };
         }
     }

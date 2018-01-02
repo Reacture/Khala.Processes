@@ -56,7 +56,7 @@
                 ProcessManagerId = processManager.Id,
                 MessageId = envelope.MessageId,
                 CorrelationId = envelope.CorrelationId,
-                CommandJson = serializer.Serialize(envelope.Message)
+                CommandJson = serializer.Serialize(envelope.Message),
             };
         }
     }
