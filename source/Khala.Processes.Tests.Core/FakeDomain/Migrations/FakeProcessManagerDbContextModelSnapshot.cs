@@ -78,9 +78,13 @@ namespace Khala.FakeDomain.Migrations
                     b.Property<string>("CommandJson")
                         .IsRequired();
 
+                    b.Property<string>("Contributor");
+
                     b.Property<Guid?>("CorrelationId");
 
                     b.Property<Guid>("MessageId");
+
+                    b.Property<Guid?>("OperationId");
 
                     b.Property<Guid>("ProcessManagerId");
 

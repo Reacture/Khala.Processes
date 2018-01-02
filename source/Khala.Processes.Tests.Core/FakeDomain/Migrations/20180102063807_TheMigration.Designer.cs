@@ -11,7 +11,7 @@ using System;
 namespace Khala.FakeDomain.Migrations
 {
     [DbContext(typeof(FakeProcessManagerDbContext))]
-    [Migration("20180102052656_TheMigration")]
+    [Migration("20180102063807_TheMigration")]
     partial class TheMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,9 +79,13 @@ namespace Khala.FakeDomain.Migrations
                     b.Property<string>("CommandJson")
                         .IsRequired();
 
+                    b.Property<string>("Contributor");
+
                     b.Property<Guid?>("CorrelationId");
 
                     b.Property<Guid>("MessageId");
+
+                    b.Property<Guid?>("OperationId");
 
                     b.Property<Guid>("ProcessManagerId");
 

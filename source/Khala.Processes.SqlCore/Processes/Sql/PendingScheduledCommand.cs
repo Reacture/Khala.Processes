@@ -24,7 +24,11 @@
 #endif
         public Guid MessageId { get; private set; }
 
+        public Guid? OperationId { get; private set; }
+
         public Guid? CorrelationId { get; private set; }
+
+        public string Contributor { get; private set; }
 
         [Required]
         public string CommandJson { get; private set; }
