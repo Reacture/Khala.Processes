@@ -4,7 +4,7 @@
     using Microsoft.EntityFrameworkCore.Metadata;
     using Microsoft.EntityFrameworkCore.Migrations;
 
-    public partial class InitializeProcessManagerDbContext : Migration
+    public partial class TheMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -30,8 +30,10 @@
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CommandJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Contributor = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CorrelationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OperationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ProcessManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProcessManagerType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
