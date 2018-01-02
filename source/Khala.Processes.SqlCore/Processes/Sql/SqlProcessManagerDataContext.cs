@@ -50,12 +50,8 @@
 
         public void Dispose() => _dbContext.Dispose();
 
-        [Obsolete("Use FindProcessManager() instead. This method will be removed in version 1.0.0.")]
-        public Task<T> Find(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
-            => FindProcessManager(predicate, cancellationToken);
-
         public Task<T> FindProcessManager(
-            Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+            Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
             if (predicate == null)
             {
@@ -92,31 +88,40 @@
 
         public Task SaveProcessManagerAndPublishCommands(
             T processManager,
-            Guid? correlationId,
-            CancellationToken cancellationToken)
+            Guid? operationId = default,
+            Guid? correlationId = default,
+            string contributor = default,
+            CancellationToken cancellationToken = default)
         {
             if (processManager == null)
             {
                 throw new ArgumentNullException(nameof(processManager));
             }
 
-            async Task Run()
-            {
-                await SaveProcessManagerAndCommands(processManager, correlationId, cancellationToken).ConfigureAwait(false);
-                await TryFlushCommands(processManager, cancellationToken).ConfigureAwait(false);
-            }
+            return RunSaveProcessManagerAndPublishCommands(processManager, operationId, correlationId, contributor, cancellationToken);
+        }
 
-            return Run();
+        private async Task RunSaveProcessManagerAndPublishCommands(
+            T processManager,
+            Guid? operationId,
+            Guid? correlationId,
+            string contributor,
+            CancellationToken cancellationToken)
+        {
+            await SaveProcessManagerAndCommands(processManager, operationId, correlationId, contributor, cancellationToken).ConfigureAwait(false);
+            await TryFlushCommands(processManager, cancellationToken).ConfigureAwait(false);
         }
 
         private Task SaveProcessManagerAndCommands(
             T processManager,
+            Guid? operationId,
             Guid? correlationId,
+            string contributor,
             CancellationToken cancellationToken)
         {
             UpsertProcessManager(processManager);
-            InsertPendingCommands(processManager, correlationId);
-            InsertPendingScheduledCommands(processManager, correlationId);
+            InsertPendingCommands(processManager, operationId, correlationId, contributor);
+            InsertPendingScheduledCommands(processManager, operationId, correlationId, contributor);
             return Commit(cancellationToken);
         }
 
@@ -128,17 +133,17 @@
             }
         }
 
-        private void InsertPendingCommands(T processManager, Guid? correlationId)
+        private void InsertPendingCommands(T processManager, Guid? operationId, Guid? correlationId, string contributor)
         {
             IEnumerable<PendingCommand> pendingCommands = processManager
                 .FlushPendingCommands()
-                .Select(command => new Envelope(Guid.NewGuid(), command, correlationId: correlationId))
+                .Select(command => new Envelope(Guid.NewGuid(), command, operationId, correlationId, contributor))
                 .Select(envelope => PendingCommand.FromEnvelope(processManager, envelope, _serializer));
 
             _dbContext.PendingCommands.AddRange(pendingCommands);
         }
 
-        private void InsertPendingScheduledCommands(T processManager, Guid? correlationId)
+        private void InsertPendingScheduledCommands(T processManager, Guid? operationId, Guid? correlationId, string contributor)
         {
             IEnumerable<PendingScheduledCommand> pendingScheduledCommands =
                 from scheduledCommand in processManager.FlushPendingScheduledCommands()
@@ -147,7 +152,9 @@
                         new Envelope(
                             Guid.NewGuid(),
                             scheduledCommand.Command,
-                            correlationId: correlationId),
+                            operationId,
+                            correlationId,
+                            contributor),
                         scheduledCommand.ScheduledTime)
                 select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, _serializer);
 

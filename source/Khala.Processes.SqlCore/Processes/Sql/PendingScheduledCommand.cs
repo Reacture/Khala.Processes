@@ -61,7 +61,9 @@
                 ProcessManagerType = typeof(T).FullName,
                 ProcessManagerId = processManager.Id,
                 MessageId = scheduledEnvelope.Envelope.MessageId,
+                OperationId = scheduledEnvelope.Envelope.OperationId,
                 CorrelationId = scheduledEnvelope.Envelope.CorrelationId,
+                Contributor = scheduledEnvelope.Envelope.Contributor,
                 CommandJson = serializer.Serialize(scheduledEnvelope.Envelope.Message),
                 ScheduledTime = scheduledEnvelope.ScheduledTime,
             };

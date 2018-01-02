@@ -14,7 +14,9 @@
 
         Task SaveProcessManagerAndPublishCommands(
             T processManager,
+            Guid? operationId = default,
             Guid? correlationId = default,
+            string contributor = default,
             CancellationToken cancellationToken = default);
     }
 }

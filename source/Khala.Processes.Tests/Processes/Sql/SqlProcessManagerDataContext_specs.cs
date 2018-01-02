@@ -10,8 +10,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using AutoFixture;
-    using AutoFixture.AutoMoq;
-    using AutoFixture.Idioms;
     using FluentAssertions;
     using Khala.Messaging;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,13 +36,6 @@
             sut.Dispose();
 
             Mock.Get(disposable).Verify(x => x.Dispose(), Times.Once());
-        }
-
-        [TestMethod]
-        public void sut_has_guard_clauses()
-        {
-            IFixture builder = new Fixture { OmitAutoProperties = true }.Customize(new AutoMoqCustomization());
-            new GuardClauseAssertion(builder).Verify(typeof(SqlProcessManagerDataContext<>));
         }
 
         [TestMethod]
@@ -152,8 +143,7 @@
             using (sut)
             {
                 // Act
-                var correlationId = default(Guid?);
-                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
+                await sut.SaveProcessManagerAndPublishCommands(processManager);
             }
 
             // Assert
@@ -186,13 +176,11 @@
                 Mock.Of<ICommandPublisher>());
             using (sut)
             {
-                CancellationToken cancellationToken = CancellationToken.None;
-                processManager = await sut.FindProcessManager(x => x.Id == processManager.Id, cancellationToken);
+                processManager = await sut.FindProcessManager(x => x.Id == processManager.Id);
                 processManager.StatusValue = statusValue;
-                var correlationId = default(Guid?);
 
                 // Act
-                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, cancellationToken);
+                await sut.SaveProcessManagerAndPublishCommands(processManager);
             }
 
             // Assert
@@ -214,10 +202,9 @@
                 new JsonMessageSerializer(),
                 Mock.Of<ICommandPublisher>());
             var processManager = new FooProcessManager();
-            var correlationId = default(Guid?);
 
             // Act
-            await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
+            await sut.SaveProcessManagerAndPublishCommands(processManager);
 
             // Assert
             context.CommitCount.Should().Be(1);
@@ -230,7 +217,9 @@
             var fixture = new Fixture();
             IEnumerable<FooCommand> commands = fixture.CreateMany<FooCommand>();
             var processManager = new FooProcessManager(commands);
+            var operationId = Guid.NewGuid();
             var correlationId = Guid.NewGuid();
+            string contributor = fixture.Create<string>();
 
             var serializer = new JsonMessageSerializer();
 
@@ -242,7 +231,7 @@
             // Act
             using (sut)
             {
-                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
+                await sut.SaveProcessManagerAndPublishCommands(processManager, operationId, correlationId, contributor);
             }
 
             // Assert
@@ -261,7 +250,9 @@
                     t.actual.ProcessManagerType.Should().Be(typeof(FooProcessManager).FullName);
                     t.actual.ProcessManagerId.Should().Be(processManager.Id);
                     t.actual.MessageId.Should().NotBeEmpty();
+                    t.actual.OperationId.Should().Be(operationId);
                     t.actual.CorrelationId.Should().Be(correlationId);
+                    t.actual.Contributor.Should().Be(contributor);
                     serializer.Deserialize(t.actual.CommandJson).ShouldBeEquivalentTo(t.expected, opts => opts.RespectingRuntimeTypes());
                 }
             }
@@ -276,7 +267,9 @@
             var processManager = new FooProcessManager(
                 from e in scheduledCommands
                 select new ScheduledCommand(e.command, e.scheduledTime));
+            var operationId = Guid.NewGuid();
             var correlationId = Guid.NewGuid();
+            string contributor = fixture.Create<string>();
             var serializer = new JsonMessageSerializer();
 
             // Act
@@ -285,7 +278,7 @@
                                  serializer,
                                  Mock.Of<ICommandPublisher>()))
             {
-                await sut.SaveProcessManagerAndPublishCommands(processManager, correlationId, CancellationToken.None);
+                await sut.SaveProcessManagerAndPublishCommands(processManager, operationId, correlationId, contributor);
             }
 
             // Assert
@@ -305,7 +298,9 @@
                     t.actual.ProcessManagerType.Should().Be(typeof(FooProcessManager).FullName);
                     t.actual.ProcessManagerId.Should().Be(processManager.Id);
                     t.actual.MessageId.Should().NotBeEmpty();
+                    t.actual.OperationId.Should().Be(operationId);
                     t.actual.CorrelationId.Should().Be(correlationId);
+                    t.actual.Contributor.Should().Be(contributor);
                     serializer.Deserialize(t.actual.CommandJson).ShouldBeEquivalentTo(t.expected.command, opts => opts.RespectingRuntimeTypes());
                     t.actual.ScheduledTime.Should().Be(t.expected.scheduledTime);
                 }
@@ -325,7 +320,7 @@
                 publisher);
 
             // Act
-            await sut.SaveProcessManagerAndPublishCommands(processManager, null, CancellationToken.None);
+            await sut.SaveProcessManagerAndPublishCommands(processManager);
 
             // Assert
             Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, CancellationToken.None), Times.Once());
@@ -345,7 +340,7 @@
                 publisher);
 
             // Act
-            Func<Task> action = () => sut.SaveProcessManagerAndPublishCommands(processManager, null, CancellationToken.None);
+            Func<Task> action = () => sut.SaveProcessManagerAndPublishCommands(processManager);
 
             // Assert
             action.ShouldThrow<DbEntityValidationException>();
@@ -374,7 +369,7 @@
 
             // Act
             Func<Task> action = () =>
-            sut.SaveProcessManagerAndPublishCommands(processManager, null, cancellationToken);
+            sut.SaveProcessManagerAndPublishCommands(processManager, cancellationToken: cancellationToken);
 
             // Assert
             action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
@@ -413,7 +408,7 @@
 
             // Act
             Func<Task> action = () =>
-            sut.SaveProcessManagerAndPublishCommands(processManager, null, cancellationToken);
+            sut.SaveProcessManagerAndPublishCommands(processManager, cancellationToken: cancellationToken);
 
             // Assert
             action.ShouldNotThrow();
@@ -443,7 +438,7 @@
 
             // Act
             Func<Task> action = () =>
-            sut.SaveProcessManagerAndPublishCommands(processManager, null, cancellationToken);
+            sut.SaveProcessManagerAndPublishCommands(processManager, cancellationToken: cancellationToken);
 
             // Assert
             action.ShouldNotThrow();
