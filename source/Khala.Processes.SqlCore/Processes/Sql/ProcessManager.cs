@@ -35,7 +35,7 @@
 
         public IEnumerable<object> FlushPendingCommands()
         {
-            List<object> commands = _pendingCommands.ToList();
+            var commands = _pendingCommands.ToList();
             try
             {
                 return commands;
@@ -58,7 +58,7 @@
 
         public IEnumerable<ScheduledCommand> FlushPendingScheduledCommands()
         {
-            List<ScheduledCommand> scheduledCommands = _pendingScheduledCommands.ToList();
+            var scheduledCommands = _pendingScheduledCommands.ToList();
             try
             {
                 return scheduledCommands;
