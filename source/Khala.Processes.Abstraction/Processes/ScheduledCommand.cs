@@ -4,14 +4,14 @@
 
     public class ScheduledCommand
     {
-        public ScheduledCommand(object command, DateTimeOffset scheduledTime)
+        public ScheduledCommand(object command, DateTime scheduledTimeUtc)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
-            ScheduledTime = scheduledTime;
+            ScheduledTimeUtc = scheduledTimeUtc;
         }
 
         public object Command { get; }
 
-        public DateTimeOffset ScheduledTime { get; }
+        public DateTime ScheduledTimeUtc { get; }
     }
 }

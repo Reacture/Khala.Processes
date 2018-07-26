@@ -53,7 +53,7 @@ namespace Khala.FakeDomain.Migrations
 
                     b.Property<Guid>("MessageId");
 
-                    b.Property<Guid?>("OperationId");
+                    b.Property<string>("OperationId");
 
                     b.Property<Guid>("ProcessManagerId");
 
@@ -84,14 +84,14 @@ namespace Khala.FakeDomain.Migrations
 
                     b.Property<Guid>("MessageId");
 
-                    b.Property<Guid?>("OperationId");
+                    b.Property<string>("OperationId");
 
                     b.Property<Guid>("ProcessManagerId");
 
                     b.Property<string>("ProcessManagerType")
                         .IsRequired();
 
-                    b.Property<DateTimeOffset>("ScheduledTime");
+                    b.Property<DateTime>("ScheduledTimeUtc");
 
                     b.HasKey("Id");
 

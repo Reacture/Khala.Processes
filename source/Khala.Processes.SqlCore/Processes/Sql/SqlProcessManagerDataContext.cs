@@ -83,7 +83,7 @@
 
         public Task SaveProcessManagerAndPublishCommands(
             T processManager,
-            Guid? operationId = default,
+            string operationId = default,
             Guid? correlationId = default,
             string contributor = default,
             CancellationToken cancellationToken = default)
@@ -98,7 +98,7 @@
 
         private async Task RunSaveProcessManagerAndPublishCommands(
             T processManager,
-            Guid? operationId,
+            string operationId,
             Guid? correlationId,
             string contributor,
             CancellationToken cancellationToken)
@@ -109,7 +109,7 @@
 
         private Task SaveProcessManagerAndCommands(
             T processManager,
-            Guid? operationId,
+            string operationId,
             Guid? correlationId,
             string contributor,
             CancellationToken cancellationToken)
@@ -128,7 +128,7 @@
             }
         }
 
-        private void InsertPendingCommands(T processManager, Guid? operationId, Guid? correlationId, string contributor)
+        private void InsertPendingCommands(T processManager, string operationId, Guid? correlationId, string contributor)
         {
             IEnumerable<PendingCommand> pendingCommands = processManager
                 .FlushPendingCommands()
@@ -138,7 +138,7 @@
             _dbContext.PendingCommands.AddRange(pendingCommands);
         }
 
-        private void InsertPendingScheduledCommands(T processManager, Guid? operationId, Guid? correlationId, string contributor)
+        private void InsertPendingScheduledCommands(T processManager, string operationId, Guid? correlationId, string contributor)
         {
             IEnumerable<PendingScheduledCommand> pendingScheduledCommands =
                 from scheduledCommand in processManager.FlushPendingScheduledCommands()
@@ -150,7 +150,7 @@
                             operationId,
                             correlationId,
                             contributor),
-                        scheduledCommand.ScheduledTime)
+                        scheduledCommand.ScheduledTimeUtc)
                 select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, _serializer);
 
             _dbContext.PendingScheduledCommands.AddRange(pendingScheduledCommands);

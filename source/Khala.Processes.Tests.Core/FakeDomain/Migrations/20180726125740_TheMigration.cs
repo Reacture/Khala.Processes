@@ -33,7 +33,7 @@
                     Contributor = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CorrelationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OperationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    OperationId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProcessManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProcessManagerType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
@@ -52,10 +52,10 @@
                     Contributor = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CorrelationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    OperationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    OperationId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProcessManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProcessManagerType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ScheduledTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ScheduledTimeUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {

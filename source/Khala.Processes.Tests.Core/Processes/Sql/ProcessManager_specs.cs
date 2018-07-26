@@ -117,7 +117,7 @@
             ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            var scheduledCommand = new ScheduledCommand(new object(), DateTimeOffset.Now);
+            var scheduledCommand = new ScheduledCommand(new object(), DateTime.UtcNow);
 
             mut.Invoke(sut, new[] { scheduledCommand });
 
@@ -131,9 +131,9 @@
             ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            var existingScheduledCommand = new ScheduledCommand(new object(), DateTimeOffset.Now);
+            var existingScheduledCommand = new ScheduledCommand(new object(), DateTime.UtcNow);
             mut.Invoke(sut, new[] { existingScheduledCommand });
-            var scheduledCommand = new ScheduledCommand(new object(), DateTimeOffset.Now);
+            var scheduledCommand = new ScheduledCommand(new object(), DateTime.UtcNow);
 
             mut.Invoke(sut, new[] { scheduledCommand });
 
@@ -147,9 +147,9 @@
             ProcessManager sut = Mock.Of<ProcessManager>();
             MethodInfo mut = typeof(ProcessManager).GetMethod(
                 "AddScheduledCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-            mut.Invoke(sut, new[] { new ScheduledCommand(new object(), DateTimeOffset.Now) });
-            mut.Invoke(sut, new[] { new ScheduledCommand(new object(), DateTimeOffset.Now) });
-            mut.Invoke(sut, new[] { new ScheduledCommand(new object(), DateTimeOffset.Now) });
+            mut.Invoke(sut, new[] { new ScheduledCommand(new object(), DateTime.UtcNow) });
+            mut.Invoke(sut, new[] { new ScheduledCommand(new object(), DateTime.UtcNow) });
+            mut.Invoke(sut, new[] { new ScheduledCommand(new object(), DateTime.UtcNow) });
 
             sut.FlushPendingScheduledCommands();
 

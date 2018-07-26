@@ -16,7 +16,7 @@
 
         public Guid MessageId { get; private set; }
 
-        public Guid? OperationId { get; private set; }
+        public string OperationId { get; private set; }
 
         public Guid? CorrelationId { get; private set; }
 
@@ -25,7 +25,7 @@
         [Required]
         public string CommandJson { get; private set; }
 
-        public DateTimeOffset ScheduledTime { get; private set; }
+        public DateTime ScheduledTimeUtc { get; private set; }
 
         public static PendingScheduledCommand FromScheduledEnvelope<T>(
             T processManager,
@@ -57,7 +57,7 @@
                 CorrelationId = scheduledEnvelope.Envelope.CorrelationId,
                 Contributor = scheduledEnvelope.Envelope.Contributor,
                 CommandJson = serializer.Serialize(scheduledEnvelope.Envelope.Message),
-                ScheduledTime = scheduledEnvelope.ScheduledTime,
+                ScheduledTimeUtc = scheduledEnvelope.ScheduledTimeUtc,
             };
         }
     }

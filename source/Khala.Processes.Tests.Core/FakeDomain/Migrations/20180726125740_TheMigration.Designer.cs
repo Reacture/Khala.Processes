@@ -11,7 +11,7 @@ using System;
 namespace Khala.FakeDomain.Migrations
 {
     [DbContext(typeof(FakeProcessManagerDbContext))]
-    [Migration("20180102063807_TheMigration")]
+    [Migration("20180726125740_TheMigration")]
     partial class TheMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,7 +54,7 @@ namespace Khala.FakeDomain.Migrations
 
                     b.Property<Guid>("MessageId");
 
-                    b.Property<Guid?>("OperationId");
+                    b.Property<string>("OperationId");
 
                     b.Property<Guid>("ProcessManagerId");
 
@@ -85,14 +85,14 @@ namespace Khala.FakeDomain.Migrations
 
                     b.Property<Guid>("MessageId");
 
-                    b.Property<Guid?>("OperationId");
+                    b.Property<string>("OperationId");
 
                     b.Property<Guid>("ProcessManagerId");
 
                     b.Property<string>("ProcessManagerType")
                         .IsRequired();
 
-                    b.Property<DateTimeOffset>("ScheduledTime");
+                    b.Property<DateTime>("ScheduledTimeUtc");
 
                     b.HasKey("Id");
 

@@ -131,7 +131,7 @@
             await sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
-            messageBus.Sent.ShouldAllBeEquivalentTo(envelopes, opts => opts.WithStrictOrdering().RespectingRuntimeTypes());
+            messageBus.Sent.Should().BeEquivalentTo(envelopes, opts => opts.WithStrictOrdering().RespectingRuntimeTypes());
         }
 
         [TestMethod]
@@ -173,14 +173,14 @@
             Func<Task> action = () => sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
+            action.Should().Throw<InvalidOperationException>().Which.Should().BeSameAs(exception);
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
                 IQueryable<PendingCommand> query = from c in db.PendingCommands
                                                    where c.ProcessManagerId == processManager.Id
                                                    select c;
                 List<PendingCommand> actual = await query.ToListAsync();
-                actual.ShouldAllBeEquivalentTo(commands, opts => opts.RespectingRuntimeTypes());
+                actual.Should().BeEquivalentTo(commands, opts => opts.RespectingRuntimeTypes());
             }
         }
 
@@ -259,7 +259,7 @@
             };
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         [TestMethod]
@@ -277,12 +277,12 @@
             {
                 var commands = new List<PendingScheduledCommand>(
                     from command in Enumerable.Repeat(new FakeCommand(), 3)
-                    let scheduledEnvelope = new ScheduledEnvelope(new Envelope(command), DateTimeOffset.Now)
+                    let scheduledEnvelope = new ScheduledEnvelope(new Envelope(command), DateTime.UtcNow)
                     select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, serializer));
 
                 commands.AddRange(
                     from command in Enumerable.Repeat(new FakeCommand(), noiseCommandCount)
-                    let scheduledEnvelope = new ScheduledEnvelope(new Envelope(command), DateTimeOffset.Now)
+                    let scheduledEnvelope = new ScheduledEnvelope(new Envelope(command), DateTime.UtcNow)
                     select PendingScheduledCommand.FromScheduledEnvelope(noiseProcessManager, scheduledEnvelope, serializer));
 
                 var random = new Random();
@@ -330,7 +330,7 @@
                     new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
                 }
                 let envelope = new Envelope(Guid.NewGuid(), command, null, Guid.NewGuid(), null)
-                select new ScheduledEnvelope(envelope, DateTimeOffset.Now.AddTicks(random.Next())));
+                select new ScheduledEnvelope(envelope, DateTime.UtcNow.AddTicks(random.Next())));
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
@@ -341,9 +341,9 @@
                 db.PendingScheduledCommands.AddRange(
                     from scheduledEnvelope in new[]
                     {
-                        new ScheduledEnvelope(new Envelope(new object()), DateTimeOffset.Now),
-                        new ScheduledEnvelope(new Envelope(new object()), DateTimeOffset.Now),
-                        new ScheduledEnvelope(new Envelope(new object()), DateTimeOffset.Now),
+                        new ScheduledEnvelope(new Envelope(new object()), DateTime.UtcNow),
+                        new ScheduledEnvelope(new Envelope(new object()), DateTime.UtcNow),
+                        new ScheduledEnvelope(new Envelope(new object()), DateTime.UtcNow),
                     }
                     select PendingScheduledCommand.FromScheduledEnvelope(noiseProcessManager, scheduledEnvelope, serializer));
 
@@ -362,7 +362,7 @@
             await sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
-            scheduledMessageBus.Sent.ShouldAllBeEquivalentTo(scheduledEnvelopes, opts => opts.WithStrictOrdering().RespectingRuntimeTypes());
+            scheduledMessageBus.Sent.Should().BeEquivalentTo(scheduledEnvelopes, opts => opts.WithStrictOrdering().RespectingRuntimeTypes());
         }
 
         [TestMethod]
@@ -380,7 +380,7 @@
                     new FakeCommand { Int32Value = random.Next(), StringValue = Guid.NewGuid().ToString() },
                 }
                 let envelope = new Envelope(command)
-                let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTimeOffset.Now.AddTicks(random.Next()))
+                let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTime.UtcNow.AddTicks(random.Next()))
                 select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, serializer));
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
@@ -409,14 +409,14 @@
             Func<Task> action = () => sut.FlushCommands(processManager.Id, CancellationToken.None);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
+            action.Should().Throw<InvalidOperationException>().Which.Should().BeSameAs(exception);
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
                 IQueryable<PendingScheduledCommand> query = from c in db.PendingScheduledCommands
                                                             where c.ProcessManagerId == processManager.Id
                                                             select c;
                 List<PendingScheduledCommand> actual = await query.ToListAsync();
-                actual.ShouldAllBeEquivalentTo(scheduledCommands, opts => opts.RespectingRuntimeTypes());
+                actual.Should().BeEquivalentTo(scheduledCommands, opts => opts.RespectingRuntimeTypes());
             }
         }
 
@@ -444,7 +444,7 @@
                         new FakeCommand(),
                     }
                     let envelope = new Envelope(command)
-                    let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTimeOffset.Now)
+                    let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTime.UtcNow)
                     select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, serializer));
                 await db.SaveChangesAsync();
             }
@@ -470,7 +470,7 @@
             };
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         [TestMethod]
@@ -526,7 +526,7 @@
                     var processManager = new FakeProcessManager();
                     db.PendingScheduledCommands.AddRange(from command in Enumerable.Repeat(new FakeCommand(), 3)
                                                          let envelope = new Envelope(command)
-                                                         let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTimeOffset.Now)
+                                                         let scheduledEnvelope = new ScheduledEnvelope(envelope, DateTime.UtcNow)
                                                          select PendingScheduledCommand.FromScheduledEnvelope(processManager, scheduledEnvelope, serializer));
                 }
 

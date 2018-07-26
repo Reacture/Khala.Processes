@@ -158,7 +158,7 @@
                     scheduledCommand.MessageId,
                     _serializer.Deserialize(scheduledCommand.CommandJson),
                     correlationId: scheduledCommand.CorrelationId),
-                scheduledCommand.ScheduledTime);
+                scheduledCommand.ScheduledTimeUtc);
 
         private static async Task RemoveScheduledCommands(
             ProcessManagerDbContext dbContext,

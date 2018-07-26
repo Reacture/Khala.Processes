@@ -250,7 +250,7 @@
                 new FakeCommand { Int32Value = fixture.Create<int>(), StringValue = Guid.NewGuid().ToString() },
             };
             var processManager = new FakeProcessManager(commands);
-            var operationId = Guid.NewGuid();
+            string operationId = $"{Guid.NewGuid()}";
             var correlationId = Guid.NewGuid();
             string contributor = fixture.Create<string>();
 
@@ -286,7 +286,7 @@
                     t.actual.OperationId.Should().Be(operationId);
                     t.actual.CorrelationId.Should().Be(correlationId);
                     t.actual.Contributor.Should().Be(contributor);
-                    serializer.Deserialize(t.actual.CommandJson).ShouldBeEquivalentTo(t.expected, opts => opts.RespectingRuntimeTypes());
+                    serializer.Deserialize(t.actual.CommandJson).Should().BeEquivalentTo(t.expected, opts => opts.RespectingRuntimeTypes());
                 }
             }
         }
@@ -296,16 +296,16 @@
         {
             // Arrange
             var fixture = new Fixture();
-            IEnumerable<(FakeCommand command, DateTimeOffset scheduledTime)> scheduledCommands = new[]
+            IEnumerable<(FakeCommand command, DateTime scheduledTimeUtc)> scheduledCommands = new[]
             {
-                (new FakeCommand { Int32Value = fixture.Create<int>(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(fixture.Create<int>())),
-                (new FakeCommand { Int32Value = fixture.Create<int>(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(fixture.Create<int>())),
-                (new FakeCommand { Int32Value = fixture.Create<int>(), StringValue = Guid.NewGuid().ToString() }, DateTimeOffset.Now.AddTicks(fixture.Create<int>())),
+                (new FakeCommand { Int32Value = fixture.Create<int>(), StringValue = Guid.NewGuid().ToString() }, DateTime.UtcNow.AddTicks(fixture.Create<int>())),
+                (new FakeCommand { Int32Value = fixture.Create<int>(), StringValue = Guid.NewGuid().ToString() }, DateTime.UtcNow.AddTicks(fixture.Create<int>())),
+                (new FakeCommand { Int32Value = fixture.Create<int>(), StringValue = Guid.NewGuid().ToString() }, DateTime.UtcNow.AddTicks(fixture.Create<int>())),
             };
             var processManager = new FakeProcessManager(
                 from e in scheduledCommands
-                select new ScheduledCommand(e.command, e.scheduledTime));
-            var operationId = Guid.NewGuid();
+                select new ScheduledCommand(e.command, e.scheduledTimeUtc));
+            string operationId = $"{Guid.NewGuid()}";
             var correlationId = Guid.NewGuid();
             string contributor = fixture.Create<string>();
             var serializer = new JsonMessageSerializer();
@@ -330,7 +330,7 @@
 
                 var pendingScheduledCommands = query.ToList();
                 pendingScheduledCommands.Should().HaveCount(scheduledCommands.Count());
-                foreach (((FakeCommand command, DateTimeOffset scheduledTime) expected, PendingScheduledCommand actual) t in
+                foreach (((FakeCommand command, DateTime scheduledTimeUtc) expected, PendingScheduledCommand actual) t in
                     scheduledCommands.Zip(pendingScheduledCommands, (expected, actual) => (expected, actual)))
                 {
                     t.actual.ProcessManagerType.Should().Be(typeof(FakeProcessManager).FullName);
@@ -339,8 +339,8 @@
                     t.actual.OperationId.Should().Be(operationId);
                     t.actual.CorrelationId.Should().Be(correlationId);
                     t.actual.Contributor.Should().Be(contributor);
-                    serializer.Deserialize(t.actual.CommandJson).ShouldBeEquivalentTo(t.expected.command, opts => opts.RespectingRuntimeTypes());
-                    t.actual.ScheduledTime.Should().Be(t.expected.scheduledTime);
+                    serializer.Deserialize(t.actual.CommandJson).Should().BeEquivalentTo(t.expected.command, opts => opts.RespectingRuntimeTypes());
+                    t.actual.ScheduledTimeUtc.Should().Be(t.expected.scheduledTimeUtc);
                 }
             }
         }
@@ -381,7 +381,7 @@
             Func<Task> action = () => sut.SaveProcessManagerAndPublishCommands(processManager);
 
             // Assert
-            action.ShouldThrow<SqlException>();
+            action.Should().Throw<SqlException>();
             Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, CancellationToken.None), Times.Never());
         }
 
@@ -410,7 +410,7 @@
             sut.SaveProcessManagerAndPublishCommands(processManager, cancellationToken: cancellationToken);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>().Which.Should().BeSameAs(exception);
+            action.Should().Throw<InvalidOperationException>().Which.Should().BeSameAs(exception);
             Mock.Get(commandPublisherExceptionHandler).Verify(
                 x =>
                 x.Handle(It.Is<CommandPublisherExceptionContext>(
@@ -449,7 +449,7 @@
             sut.SaveProcessManagerAndPublishCommands(processManager, cancellationToken: cancellationToken);
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         [TestMethod]
@@ -479,7 +479,7 @@
             sut.SaveProcessManagerAndPublishCommands(processManager, cancellationToken: cancellationToken);
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
 
         [TestMethod]
@@ -503,7 +503,7 @@
             sut.SaveProcessManagerAndPublishCommands(processManager);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>();
+            action.Should().Throw<InvalidOperationException>();
         }
 
         [TestMethod]
@@ -528,7 +528,7 @@
             sut.SaveProcessManagerAndPublishCommands(processManager);
 
             // Assert
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
         }
     }
 }

@@ -16,7 +16,7 @@
 
         public Guid MessageId { get; private set; }
 
-        public Guid? OperationId { get; private set; }
+        public string OperationId { get; private set; }
 
         public Guid? CorrelationId { get; private set; }
 

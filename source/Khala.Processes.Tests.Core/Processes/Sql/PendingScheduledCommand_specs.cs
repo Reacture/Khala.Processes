@@ -83,11 +83,11 @@
         }
 
         [TestMethod]
-        public void sut_has_ScheduledTime_property()
+        public void sut_has_ScheduledTimeUtc_property()
         {
             typeof(PendingScheduledCommand)
                 .Should()
-                .HaveProperty<DateTimeOffset>("ScheduledTime")
+                .HaveProperty<DateTime>("ScheduledTimeUtc")
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
@@ -107,7 +107,7 @@
             var scheduledEnvelope =
                 new ScheduledEnvelope(
                     new Envelope(messageId, message, correlationId: correlationId),
-                    new DateTimeOffset(DateTime.Now.AddTicks(random.Next())));
+                    DateTime.Now.AddTicks(random.Next()));
             var serializer = new JsonMessageSerializer();
 
             // Act
@@ -119,7 +119,7 @@
             actual.MessageId.Should().Be(messageId);
             actual.CorrelationId.Should().Be(correlationId);
             actual.CommandJson.Should().Be(serializer.Serialize(message));
-            actual.ScheduledTime.Should().Be(scheduledEnvelope.ScheduledTime);
+            actual.ScheduledTimeUtc.Should().Be(scheduledEnvelope.ScheduledTimeUtc);
         }
     }
 }
