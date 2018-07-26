@@ -8,13 +8,8 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Khala.Messaging;
-
-#if NETSTANDARD2_0
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Storage;
-#else
-    using System.Data.Entity;
-#endif
 
     public sealed class SqlProcessManagerDataContext<T> : ISqlProcessManagerDataContext<T>
         where T : ProcessManager
@@ -161,7 +156,6 @@
             _dbContext.PendingScheduledCommands.AddRange(pendingScheduledCommands);
         }
 
-#if NETSTANDARD2_0
         private async Task Commit(CancellationToken cancellationToken)
         {
             using (IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false))
@@ -170,12 +164,6 @@
                 transaction.Commit();
             }
         }
-#else
-        private Task Commit(CancellationToken cancellationToken)
-        {
-            return _dbContext.SaveChangesAsync(cancellationToken);
-        }
-#endif
 
         private async Task TryFlushCommands(
             T processManager,

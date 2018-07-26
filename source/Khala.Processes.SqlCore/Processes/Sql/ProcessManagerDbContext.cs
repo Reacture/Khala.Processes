@@ -1,38 +1,22 @@
 ﻿namespace Khala.Processes.Sql
 {
-#if NETSTANDARD2_0
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
-#else
-    using System.Data.Entity;
-#endif
 
     public class ProcessManagerDbContext : DbContext
     {
-#if NETSTANDARD2_0
         public ProcessManagerDbContext(DbContextOptions options)
             : base(options)
         {
         }
-#else
-        public ProcessManagerDbContext()
-        {
-        }
-
-        public ProcessManagerDbContext(string nameOrConnectionString)
-            : base(nameOrConnectionString)
-        {
-        }
-#endif
 
         public DbSet<PendingCommand> PendingCommands { get; set; }
 
         public DbSet<PendingScheduledCommand> PendingScheduledCommands { get; set; }
 
-#if NETSTANDARD2_0
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -55,6 +39,5 @@
                 entity.HasIndex("Id").IsUnique();
             }
         }
-#endif
     }
 }

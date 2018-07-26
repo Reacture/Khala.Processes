@@ -12,16 +12,8 @@
         [Required]
         public string ProcessManagerType { get; private set; }
 
-#if NETSTANDARD2_0
-#else
-        [System.ComponentModel.DataAnnotations.Schema.Index]
-#endif
         public Guid ProcessManagerId { get; private set; }
 
-#if NETSTANDARD2_0
-#else
-        [System.ComponentModel.DataAnnotations.Schema.Index(IsUnique = true)]
-#endif
         public Guid MessageId { get; private set; }
 
         public Guid? OperationId { get; private set; }

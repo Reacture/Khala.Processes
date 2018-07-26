@@ -6,14 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Khala.Messaging;
-
-#if NETSTANDARD2_0
     using Microsoft.EntityFrameworkCore;
-#else
-    using System.Data.Entity;
-    using System.Data.Entity.Core;
-    using System.Data.Entity.Infrastructure;
-#endif
 
     public class SqlCommandPublisher : ICommandPublisher
     {
@@ -118,12 +111,7 @@
                 dbContext.PendingCommands.Remove(command);
                 await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
-#if NETSTANDARD2_0
             catch (DbUpdateConcurrencyException)
-#else
-            catch (DbUpdateConcurrencyException exception)
-            when (exception.InnerException is OptimisticConcurrencyException)
-#endif
             {
                 dbContext.Entry(command).State = EntityState.Detached;
             }
@@ -193,12 +181,7 @@
                 dbContext.PendingScheduledCommands.Remove(scheduledCommand);
                 await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
-#if NETSTANDARD2_0
             catch (DbUpdateConcurrencyException)
-#else
-            catch (DbUpdateConcurrencyException exception)
-            when (exception.InnerException is OptimisticConcurrencyException)
-#endif
             {
                 dbContext.Entry(scheduledCommand).State = EntityState.Detached;
             }

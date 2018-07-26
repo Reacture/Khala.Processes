@@ -10,17 +10,9 @@
         private readonly List<ScheduledCommand> _pendingScheduledCommands = new List<ScheduledCommand>();
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Entity Framework calls the private setter.")]
-#if NETSTANDARD2_0
-#else
-        [System.ComponentModel.DataAnnotations.Key]
-#endif
         public long SequenceId { get; private set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Entity Framework calls the private setter.")]
-#if NETSTANDARD2_0
-#else
-        [System.ComponentModel.DataAnnotations.Schema.Index(IsUnique = true)]
-#endif
         public Guid Id { get; private set; } = Guid.NewGuid();
 
         protected void AddCommand(object command)

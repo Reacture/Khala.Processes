@@ -11,15 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{DD9CC521
 		Rules\Khala.Processes.Tests.ruleset = Rules\Khala.Processes.Tests.ruleset
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Tests", "Khala.Processes.Tests\Khala.Processes.Tests.csproj", "{64E14508-24D4-4C95-AE02-E7CBE49B24DD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Sql", "Khala.Processes.Sql\Khala.Processes.Sql.csproj", "{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Khala.Processes.Abstraction", "Khala.Processes.Abstraction\Khala.Processes.Abstraction.csproj", "{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Khala.Processes.SqlCore", "Khala.Processes.SqlCore\Khala.Processes.SqlCore.csproj", "{5B58B293-67D8-46A4-A10A-3FF684AFCB11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Khala.Processes.Tests.Core", "Khala.Processes.Tests.Core\Khala.Processes.Tests.Core.csproj", "{4B57E3A5-33FD-498A-97B8-372B90A03E59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Khala.Processes.Tests.Core", "Khala.Processes.Tests.Core\Khala.Processes.Tests.Core.csproj", "{4B57E3A5-33FD-498A-97B8-372B90A03E59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,14 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{64E14508-24D4-4C95-AE02-E7CBE49B24DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64E14508-24D4-4C95-AE02-E7CBE49B24DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64E14508-24D4-4C95-AE02-E7CBE49B24DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64E14508-24D4-4C95-AE02-E7CBE49B24DD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAA2BAE1-441C-46BB-A2ED-50EB8E233031}.Release|Any CPU.Build.0 = Release|Any CPU
 		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20B6D321-D0BC-4A27-B4F1-EE0146EFD882}.Release|Any CPU.ActiveCfg = Release|Any CPU
