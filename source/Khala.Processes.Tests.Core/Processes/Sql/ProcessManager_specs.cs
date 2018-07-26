@@ -5,18 +5,19 @@
     using System.Linq;
     using System.Reflection;
     using FluentAssertions;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using Xunit;
 
+    [TestClass]
     public class ProcessManager_specs
     {
-        [Fact]
+        [TestMethod]
         public void sut_is_abstract()
         {
             typeof(ProcessManager).IsAbstract.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_SequenceId_property()
         {
             typeof(ProcessManager)
@@ -25,7 +26,7 @@
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_Id_property()
         {
             typeof(ProcessManager)
@@ -34,7 +35,7 @@
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_initializes_Id_correctly()
         {
             var ids = Enumerable
@@ -47,7 +48,7 @@
             ids.Should().OnlyHaveUniqueItems();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_AddCommand_protected_method()
         {
             typeof(ProcessManager)
@@ -56,7 +57,7 @@
                 .Which.IsFamily.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void AddCommand_adds_envelope()
         {
             ProcessManager sut = Mock.Of<ProcessManager>();
@@ -70,7 +71,7 @@
             actual.Should().ContainSingle().Which.Should().BeSameAs(command);
         }
 
-        [Fact]
+        [TestMethod]
         public void AddCommand_appends_envelope()
         {
             ProcessManager sut = Mock.Of<ProcessManager>();
@@ -85,7 +86,7 @@
             actual.Should().HaveCount(2).And.HaveElementAt(1, command);
         }
 
-        [Fact]
+        [TestMethod]
         public void FlushPendingCommands_clears_pending_commands()
         {
             ProcessManager sut = Mock.Of<ProcessManager>();
@@ -101,7 +102,7 @@
             actual.Should().NotBeNull().And.BeEmpty();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_AddScheduledCommand_protected_method()
         {
             typeof(ProcessManager)
@@ -110,7 +111,7 @@
                 .Which.IsFamily.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void AddScheduledCommand_adds_envelope()
         {
             ProcessManager sut = Mock.Of<ProcessManager>();
@@ -124,7 +125,7 @@
             actual.Should().ContainSingle().Which.Should().BeSameAs(scheduledCommand);
         }
 
-        [Fact]
+        [TestMethod]
         public void AddScheduledCommand_appends_envelope()
         {
             ProcessManager sut = Mock.Of<ProcessManager>();
@@ -140,7 +141,7 @@
             actual.Should().HaveCount(2).And.HaveElementAt(1, scheduledCommand);
         }
 
-        [Fact]
+        [TestMethod]
         public void FlushPendingScheduledCommands_clears_pending_scheduled_commands()
         {
             ProcessManager sut = Mock.Of<ProcessManager>();

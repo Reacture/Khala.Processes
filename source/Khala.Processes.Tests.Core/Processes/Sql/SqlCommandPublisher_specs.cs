@@ -12,9 +12,10 @@
     using Khala.Messaging;
     using Khala.TransientFaultHandling;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using Xunit;
 
+    [TestClass]
     public class SqlCommandPublisher_specs
     {
         private readonly DbContextOptions<ProcessManagerDbContext> _dbContextOptions;
@@ -26,13 +27,13 @@
                 .Options;
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_implements_ICommandPublisher()
         {
             typeof(SqlCommandPublisher).Should().Implement<ICommandPublisher>();
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FlushCommands_deletes_all_commands_associated_with_specified_process_manager()
         {
             // Arrange
@@ -81,7 +82,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FlushCommands_sends_all_commands_associated_with_specified_process_manager_sequentially()
         {
             // Arrange
@@ -133,7 +134,7 @@
             messageBus.Sent.ShouldAllBeEquivalentTo(envelopes, opts => opts.WithStrictOrdering().RespectingRuntimeTypes());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task given_message_bus_fails_FlushCommands_deletes_no_command()
         {
             // Arrange
@@ -183,7 +184,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task given_no_command_FlushCommands_does_not_try_to_send()
         {
             // Arrange
@@ -209,7 +210,7 @@
                 Times.Never());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FlushCommands_absorbs_exception_caused_by_that_some_pending_command_already_deleted_since_loaded()
         {
             // Arrange
@@ -261,7 +262,7 @@
             action.ShouldNotThrow();
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FlushCommands_deletes_all_scheduled_commands_associated_with_specified_process_manager()
         {
             // Arrange
@@ -310,7 +311,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FlushCommands_sends_all_scheduled_commands_associated_with_specified_process_manager_sequentially()
         {
             // Arrange
@@ -364,7 +365,7 @@
             scheduledMessageBus.Sent.ShouldAllBeEquivalentTo(scheduledEnvelopes, opts => opts.WithStrictOrdering().RespectingRuntimeTypes());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task given_scheduled_message_bus_fails_FlushCommands_deletes_no_scheduled_command()
         {
             // Arrange
@@ -419,7 +420,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FlushCommands_absorbs_exception_caused_by_that_some_pending_scheduled_command_already_deleted_since_loaded()
         {
             // Arrange
@@ -472,7 +473,7 @@
             action.ShouldNotThrow();
         }
 
-        [Fact]
+        [TestMethod]
         public async Task EnqueueAll_publishes_all_pending_commands_asynchronously()
         {
             // Arrange
@@ -512,7 +513,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task EnqueueAll_publishes_all_pending_scheduled_commands_asynchronously()
         {
             // Arrange

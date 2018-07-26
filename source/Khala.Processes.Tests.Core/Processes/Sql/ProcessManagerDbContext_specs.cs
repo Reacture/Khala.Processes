@@ -4,8 +4,9 @@
     using Khala.FakeDomain;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata;
-    using Xunit;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    [TestClass]
     public class ProcessManagerDbContext_specs
     {
         private readonly DbContextOptions<ProcessManagerDbContext> _dbContextOptions;
@@ -17,13 +18,13 @@
                 .Options;
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_inherits_DbContext()
         {
             typeof(ProcessManagerDbContext).BaseType.Should().Be(typeof(DbContext));
         }
 
-        [Fact]
+        [TestMethod]
         public void model_has_PendingCommand_entity()
         {
             var sut = new ProcessManagerDbContext(_dbContextOptions);
@@ -31,7 +32,7 @@
             actual.Should().NotBeNull();
         }
 
-        [Fact]
+        [TestMethod]
         public void PendingCommand_entity_has_index_for_ProcessManagerId()
         {
             var context = new ProcessManagerDbContext(_dbContextOptions);
@@ -40,7 +41,7 @@
             property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique == false);
         }
 
-        [Fact]
+        [TestMethod]
         public void PendingCommand_entity_has_index_for_MessageId()
         {
             var context = new ProcessManagerDbContext(_dbContextOptions);
@@ -49,7 +50,7 @@
             property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique);
         }
 
-        [Fact]
+        [TestMethod]
         public void model_has_PendingScheduledCommand_entity()
         {
             var sut = new ProcessManagerDbContext(_dbContextOptions);
@@ -57,7 +58,7 @@
             actual.Should().NotBeNull();
         }
 
-        [Fact]
+        [TestMethod]
         public void PendingScheduledCommand_entity_has_index_for_ProcessManagerId()
         {
             var context = new ProcessManagerDbContext(_dbContextOptions);
@@ -66,7 +67,7 @@
             property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique == false);
         }
 
-        [Fact]
+        [TestMethod]
         public void PendingScheduledCommand_entity_has_index_for_MessageId()
         {
             var context = new ProcessManagerDbContext(_dbContextOptions);
@@ -75,7 +76,7 @@
             property.GetContainingIndexes().Should().ContainSingle(index => index.IsUnique);
         }
 
-        [Fact]
+        [TestMethod]
         public void process_manager_entity_has_primary_key()
         {
             var context = new FakeProcessManagerDbContext(_dbContextOptions);
@@ -83,7 +84,7 @@
             sut.FindPrimaryKey().Properties.Should().ContainSingle(p => p.Name == "SequenceId");
         }
 
-        [Fact]
+        [TestMethod]
         public void process_manager_entity_has_Id_property()
         {
             var context = new FakeProcessManagerDbContext(_dbContextOptions);
@@ -92,7 +93,7 @@
             actual.Should().NotBeNull();
         }
 
-        [Fact]
+        [TestMethod]
         public void process_manager_entity_has_index_for_Id()
         {
             var context = new FakeProcessManagerDbContext(_dbContextOptions);

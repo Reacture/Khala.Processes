@@ -5,11 +5,12 @@
     using FluentAssertions;
     using Khala.FakeDomain;
     using Khala.Messaging;
-    using Xunit;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    [TestClass]
     public class PendingCommand_specs
     {
-        [Fact]
+        [TestMethod]
         public void sut_has_Id_property()
         {
             typeof(PendingCommand)
@@ -18,7 +19,7 @@
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_ProcessManagerType_property()
         {
             typeof(PendingCommand)
@@ -27,7 +28,7 @@
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void ProcessManagerType_is_decorated_with_Required()
         {
             typeof(PendingCommand)
@@ -36,7 +37,7 @@
                 .BeDecoratedWith<RequiredAttribute>();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_ProcessManagerId_property()
         {
             typeof(PendingCommand)
@@ -45,7 +46,7 @@
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_MessageId_property()
         {
             typeof(PendingCommand)
@@ -54,7 +55,7 @@
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_CorrelationId_property()
         {
             typeof(PendingCommand)
@@ -63,7 +64,7 @@
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_has_CommandJson_property()
         {
             typeof(PendingCommand)
@@ -72,7 +73,7 @@
                 .Which.SetMethod.IsPrivate.Should().BeTrue();
         }
 
-        [Fact]
+        [TestMethod]
         public void CommandJson_is_decorated_with_Required()
         {
             typeof(PendingCommand)
@@ -81,7 +82,7 @@
                 .BeDecoratedWith<RequiredAttribute>();
         }
 
-        [Fact]
+        [TestMethod]
         public void FromEnvelope_generates_PendingCommand_correctly()
         {
             // Arrange

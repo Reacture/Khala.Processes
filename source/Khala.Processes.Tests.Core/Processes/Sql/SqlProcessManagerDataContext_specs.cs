@@ -13,9 +13,10 @@
     using Khala.Messaging;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Diagnostics;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using Xunit;
 
+    [TestClass]
     public class SqlProcessManagerDataContext_specs
     {
         private static readonly DbContextOptions<ProcessManagerDbContext> _dbContextOptions;
@@ -35,19 +36,19 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_implements_ISqlProcessManagerDataContextT()
         {
             typeof(SqlProcessManagerDataContext<FakeProcessManager>).Should().Implement<ISqlProcessManagerDataContext<FakeProcessManager>>();
         }
 
-        [Fact]
+        [TestMethod]
         public void sut_implements_IDisposable()
         {
             typeof(SqlProcessManagerDataContext<>).Should().Implement<IDisposable>();
         }
 
-        [Fact]
+        [TestMethod]
         public void Dispose_disposes_db_context()
         {
             IDisposable disposable = Mock.Of<IDisposable>();
@@ -61,7 +62,7 @@
             Mock.Get(disposable).Verify(x => x.Dispose(), Times.Once());
         }
 
-        [Fact]
+        [TestMethod]
         public void T_has_ProcessManager_constraint()
         {
             typeof(SqlProcessManagerDataContext<>)
@@ -70,7 +71,7 @@
                 .Should().Contain(typeof(ProcessManager));
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FindProcessManager_returns_null_if_process_manager_that_satisfies_predicate_not_found()
         {
             // Arrange
@@ -90,7 +91,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FindProcessManager_returns_process_manager_that_satisfies_predicate()
         {
             // Arrange
@@ -131,7 +132,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task FindProcessManager_flushes_pending_commands()
         {
             // Arrange
@@ -154,7 +155,7 @@
             Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, default), Times.Once());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SaveProcessManagerAndPublishCommands_inserts_new_process_manager()
         {
             // Arrange
@@ -179,7 +180,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SaveProcessManagerAndPublishCommands_updates_existing_process_manager()
         {
             // Arrange
@@ -219,7 +220,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SaveProcessManagerAndPublishCommands_commits_once()
         {
             // Arrange
@@ -237,7 +238,7 @@
             context.CommitCount.Should().Be(1);
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SaveProcessManagerAndPublishCommands_inserts_pending_commands_sequentially()
         {
             // Arrange
@@ -290,7 +291,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SaveProcessManagerAndPublishCommands_inserts_pending_scheduled_commands_sequentially()
         {
             // Arrange
@@ -344,7 +345,7 @@
             }
         }
 
-        [Fact]
+        [TestMethod]
         public async Task SaveProcessManagerAndPublishCommands_publishes_commands()
         {
             // Arrange
@@ -362,7 +363,7 @@
             Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, CancellationToken.None), Times.Once());
         }
 
-        [Fact]
+        [TestMethod]
         public void given_fails_to_commit_SaveProcessManagerAndPublishCommands_does_not_publish_commands()
         {
             // Arrange
@@ -384,7 +385,7 @@
             Mock.Get(publisher).Verify(x => x.FlushCommands(processManager.Id, CancellationToken.None), Times.Never());
         }
 
-        [Fact]
+        [TestMethod]
         public void given_command_publisher_fails_SaveProcessManagerAndPublishCommands_invokes_exception_handler()
         {
             // Arrange
@@ -420,7 +421,7 @@
                 Times.Once());
         }
 
-        [Fact]
+        [TestMethod]
         public void given_command_publisher_exception_handled_SaveProcessManagerAndPublishCommands_does_not_throw()
         {
             // Arrange
@@ -451,7 +452,7 @@
             action.ShouldNotThrow();
         }
 
-        [Fact]
+        [TestMethod]
         public void SaveProcessManagerAndPublishCommands_absorbs_command_publisher_exception_handler_exception()
         {
             // Arrange
@@ -481,7 +482,7 @@
             action.ShouldNotThrow();
         }
 
-        [Fact]
+        [TestMethod]
         public void given_db_context_does_not_support_transaction_SaveProcessManagerAndPublishCommands_fails()
         {
             // Arrange
@@ -505,7 +506,7 @@
             action.ShouldThrow<InvalidOperationException>();
         }
 
-        [Fact]
+        [TestMethod]
         public void given_db_context_supports_transaction_SaveProcessManagerAndPublishCommands_succeeds()
         {
             // Arrange
