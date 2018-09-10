@@ -101,7 +101,12 @@
                     new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
                     new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
                 }
-                select new Envelope(Guid.NewGuid(), command, null, Guid.NewGuid(), null));
+                select new Envelope(
+                    Guid.NewGuid(),
+                    command,
+                    operationId: Guid.NewGuid().ToString(),
+                    correlationId: Guid.NewGuid(),
+                    contributor: Guid.NewGuid().ToString()));
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))
             {
@@ -329,7 +334,12 @@
                     new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
                     new FakeCommand { Int32Value = random.Next(), StringValue = fixture.Create<string>() },
                 }
-                let envelope = new Envelope(Guid.NewGuid(), command, null, Guid.NewGuid(), null)
+                let envelope = new Envelope(
+                    Guid.NewGuid(),
+                    command,
+                    operationId: Guid.NewGuid().ToString(),
+                    correlationId: Guid.NewGuid(),
+                    contributor: Guid.NewGuid().ToString())
                 select new ScheduledEnvelope(envelope, DateTime.UtcNow.AddTicks(random.Next())));
 
             using (var db = new ProcessManagerDbContext(_dbContextOptions))

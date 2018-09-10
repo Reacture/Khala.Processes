@@ -88,7 +88,9 @@
             new Envelope(
                 command.MessageId,
                 _serializer.Deserialize(command.CommandJson),
-                correlationId: command.CorrelationId);
+                operationId: command.OperationId,
+                correlationId: command.CorrelationId,
+                contributor: command.Contributor);
 
         private static async Task RemoveCommands(
             ProcessManagerDbContext dbContext,
@@ -157,7 +159,9 @@
                 new Envelope(
                     scheduledCommand.MessageId,
                     _serializer.Deserialize(scheduledCommand.CommandJson),
-                    correlationId: scheduledCommand.CorrelationId),
+                    operationId: scheduledCommand.OperationId,
+                    correlationId: scheduledCommand.CorrelationId,
+                    contributor: scheduledCommand.Contributor),
                 scheduledCommand.ScheduledTimeUtc);
 
         private static async Task RemoveScheduledCommands(
