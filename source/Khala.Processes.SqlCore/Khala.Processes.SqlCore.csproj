@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Gyuwon</Authors>
-    <Version>0.10.0</Version>
+    <Version>0.10.2</Version>
     <Product>Khala.Processes</Product>
     <Authors>Gyuwon</Authors>
     <Copyright>Copyright (c) 2018 Yi Gyuwon</Copyright>
